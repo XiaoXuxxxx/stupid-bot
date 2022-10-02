@@ -144,6 +144,7 @@ client.on('messageCreate', async (message) => {
             {
               color: 10038562,
               title: 'something went wrong!!!!',
+              description: error.message,
             }
           ]
         });
