@@ -1,18 +1,16 @@
-FROM node:16
+FROM node:16-alpine AS deps
 
-# Create app directory
-WORKDIR /usr/src/app
+RUN apk add --no-cache g++ make py3-pip libc6-compat
 
-# Install app dependencies
-# A wildcard is used to ensure both package.json AND package-lock.json are copied
-# where available (npm@5+)
-COPY package*.json ./
+WORKDIR /app
+COPY package.json yarn.lock ./
+RUN yarn install --frozen-lockfile --prod
 
-RUN yarn
-# If you are building your code for production
-# RUN npm ci --only=production
+FROM node:16-alpine AS runner
 
-# Bundle app source
-COPY . .
+WORKDIR /app
+COPY --from=deps ./app/node_modules ./node_modules
+COPY ./src/ ./src/
+COPY ./package.json ./package.json
 
 CMD [ "yarn", "start" ]
