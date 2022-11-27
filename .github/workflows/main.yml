@@ -38,7 +38,7 @@ jobs:
         with:
           # relative path to the place where source code with Dockerfile is located
           context: .
-          platforms: linux/amd64,linux/arm/v8
+          platforms: linux/amd64, linux/arm64/v8
           # Note: tags has to be all lower-case
           tags: |
             ghcr.io/xiaoxuxxxx/stupid-bot:latest
