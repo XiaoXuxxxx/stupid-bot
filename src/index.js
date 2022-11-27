@@ -13,7 +13,7 @@ const client = new Client({
   ]
 });
 
-const PREFIX = ';'
+const PREFIX = '!'
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -35,20 +35,12 @@ const playNextQueue = async (connectionInfo) => {
   const currentSong = connectionInfo?.queue[0];
 
   if (!currentSong) {
-    console.log('end of queue');
     connectionInfo?.player.stop();
     return;
   }
 
 
-  console.log('======================');
-  console.log('playing', currentSong);
   connectionInfo.queue.shift();
-  console.log(connectionInfo?.queue);
-  console.log('======================');
-
-
-
 
 
   try {
@@ -65,14 +57,24 @@ const playNextQueue = async (connectionInfo) => {
 const embedQueue = (connectionInfo, channelId) => {
 
   let message = connectionInfo && (connectionInfo?.queue.length != 0) ? connectionInfo.queue.join("\r\n") : '-------END------';
+
+  // if message is too long, then ...
+  if (message.length > 2000) {
+    message = message.slice(0, 1980);
+    message += '...';
+  }
+
   client.channels.cache.get(channelId).send('```up next' + '\r\n' + message + '```');
 
 
 }
 
 const addSongToQueue = (connectionInfo, link) => {
-  console.log('push the song to list')
   connectionInfo.queue.push(link);
+}
+
+const addPlayelistToQueue = (connectionInfo, links) => {
+  connectionInfo.queue.push(...links);
 }
 
 
@@ -88,10 +90,11 @@ const addSongToQueue = (connectionInfo, link) => {
 ///////////////////////////////////////////////////////////////////////////////////////
 
 const connectionInfoByChannelId = new Map();
+const cookieByChannelId = new Map();
 
 client.once('ready', () => {
   console.log('wake up again huh');
-  client.user.setActivity("type ;help", { type: 'WATCHING' })
+  client.user.setActivity(`type ${PREFIX}help`, { type: 'WATCHING' })
 
 });
 
@@ -115,11 +118,11 @@ client.on('messageCreate', async (message) => {
 
   let connectionInfo = connectionInfoByChannelId.get(message.guildId);
 
-  if (message.content === ';d') {
+  if (message.content === `${PREFIX}d`) {
     const connection = getVoiceConnection(message.guildId);
     connection && (connection.destroy() || message.react('👋'));
 
-  } else if (message.content.startsWith(';p')) {
+  } else if (message.content.startsWith(`${PREFIX}p`)) {
     let argument = message.content.slice(2).trim();
 
     if (!argument) {
@@ -131,6 +134,7 @@ client.on('messageCreate', async (message) => {
 
     let argumentType = play.yt_validate(argument);
     let url;
+    let urls;
 
     if (argumentType == 'video') {
       url = argument
@@ -227,30 +231,58 @@ client.on('messageCreate', async (message) => {
           }
         ]
       });
-    } else {
-      message.react('❌');
+    } else if (argumentType == 'playlist') {
+      const playlistInfo = await  play.playlist_info(argument)
+      urls = playlistInfo.fetched_videos.get('1').map((video) => video.url)
+      const plalyListDurationInsec = playlistInfo.fetched_videos.get('1').reduce((acc, video) => acc + video.durationInSec, 0)
+      const plalyListDuration = Math.floor(plalyListDurationInsec / 60) + ':' + (plalyListDurationInsec % 60).toString().padStart(2, '0')
       message.reply({
         embeds: [
           {
-            color: 10038562,
-            title: 'not supported playlist (soon!!!)',
+            color: 15844367,
+            title: playlistInfo.title,
+            url: playlistInfo.url,
+            description: `request by <@${message.author.id}>`,
+            author: {
+              name: playlistInfo.channel.name,
+              url: playlistInfo.channel.url,
+              icon_url: playlistInfo.channel?.icon
+            },
+            thumbnail: {
+              url: playlistInfo.thumbnail
+            },
+            timestamp: new Date(),
+            "fields": [
+              {
+                "name": "Playlist added!!!",
+                "value": `type ${PREFIX}q to see the queue`,
+                "inline": true
+              },
+            ],
+            footer: {
+              text: `duration: ${plalyListDuration} | count: ${urls.length}`
+            }
           }
         ]
       });
-      return;
+
     }
     message.react('👌');
 
     if (!connectionInfo) {
       ///////////////////////////////////////////////
-      console.log('create new connectionInfo')
 
       const connection = createConnection(channel);
       const player = createAudioPlayer();
       connectionInfoByChannelId.set(message.guildId, { connection: connection, player: player, queue: [] })
 
       connectionInfo = connectionInfoByChannelId.get(message.guildId);
-      addSongToQueue(connectionInfo, url);
+      if (argumentType == 'playlist') {
+        addPlayelistToQueue(connectionInfo, urls)
+      } else {
+        addSongToQueue(connectionInfo, url);
+      }
+      
       playNextQueue(connectionInfo);
 
       connectionInfo.player.on(AudioPlayerStatus.Idle, async () => {
@@ -259,7 +291,11 @@ client.on('messageCreate', async (message) => {
       ///////////////////////////////////////////////
 
     } else {
-      addSongToQueue(connectionInfo, url);
+      if (argumentType == 'playlist') {
+        addPlayelistToQueue(connectionInfo, urls)
+      } else {
+        addSongToQueue(connectionInfo, url);
+      }
 
       if (connectionInfo.connection._state.status == 'disconnected') {
         connectionInfo.connection.destroy()
@@ -273,13 +309,16 @@ client.on('messageCreate', async (message) => {
         playNextQueue(connectionInfo);
       } else if (connectionInfo.connection._state.status == 'destroyed') {
         ///////////////////////////////////////////////
-        console.log('create new connectionInfo')
         const connection = createConnection(channel);
         const player = createAudioPlayer();
         connectionInfoByChannelId.set(message.guildId, { connection: connection, player: player, queue: [] })
 
         connectionInfo = connectionInfoByChannelId.get(message.guildId);
-        addSongToQueue(connectionInfo, url);
+        if (argumentType == 'playlist') {
+          addPlayelistToQueue(connectionInfo, urls)
+        } else {
+          addSongToQueue(connectionInfo, url);
+        }
         playNextQueue(connectionInfo);
 
         connectionInfo.player.on(AudioPlayerStatus.Idle, async () => {
@@ -291,18 +330,18 @@ client.on('messageCreate', async (message) => {
         playNextQueue(connectionInfo);
       }
     }
-  } else if (message.content == ';s') {
+  } else if (message.content == `${PREFIX}s`) {
     playNextQueue(connectionInfo);
     message.react('⏭️');
-  } else if (message.content == ';c') {
+  } else if (message.content == `${PREFIX}c`) {
     if (connectionInfo) {
       message.react('🗑️');
       connectionInfo.queue = [];
     }
-  } else if (message.content == ';q') {
+  } else if (message.content == `${PREFIX}q`) {
     message.react('👌');
     embedQueue(connectionInfo, message.channelId)
-  } else if (message.content == ';help' || message.content.startsWith(';')) {
+  } else if (message.content == `${PREFIX}help` || message.content.startsWith(`${PREFIX}`)) {
     message.react('👌');
     message.reply({
       embeds: [
@@ -311,27 +350,27 @@ client.on('messageCreate', async (message) => {
           title: 'Command Lists',
           fields: [
             {
-              name: '`;p <song>`',
+              name: `\`${PREFIX}p song\``,
               value: '*[P]*lay',
             },
             {
-              name: '`;s`',
+              name: `\`${PREFIX}s\``,
               value: '*[S]*kip',
             },
             {
-              name: '`;q`',
+              name: `\`${PREFIX}q\``,
               value: 'view *[Q]*ueue',
             },
             {
-              name: '`;c`',
+              name: `\`${PREFIX}c\``,
               value: '*[C]*lear all queue',
             },
             {
-              name: '`;d`',
+              name: `\`${PREFIX}d\``,
               value: '*[D]*isconnect',
             },
             {
-              name: '`;help`',
+              name: `\`${PREFIX}help\``,
               value: 'you are watching it',
             },
 
