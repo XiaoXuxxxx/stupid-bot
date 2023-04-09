@@ -53,6 +53,10 @@ export default class Help implements Commandable {
     this.embed = embed;
   }
 
+  public getEmbed(): EmbedBuilder {
+    return this.embed;
+  }
+
   public async execute(
     message: Message<boolean>,
     args: string[]

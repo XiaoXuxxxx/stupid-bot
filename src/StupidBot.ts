@@ -10,6 +10,7 @@ import Play from '@/src/commands/Play';
 import Queue from '@/src/commands/Queue';
 import Skip from '@/src/commands/Skip';
 import {
+  ActivityType,
   Awaitable,
   Client,
   Events,
@@ -51,7 +52,8 @@ export default class StupidBot {
       new Jump(soundBlasterManager)
     ]);
 
-    this.bindCommands([new Help(this.commandByAlias, this.prefix)]);
+    const help = new Help(this.commandByAlias, this.prefix);
+    this.bindCommands([help]);
 
     this.start();
   }
@@ -75,8 +77,13 @@ export default class StupidBot {
     this.client.login(this.token);
   };
 
-  private onReady = (): void => {
+  private onReady = (client: Client): void => {
     console.log('wake up again');
+    client.user?.setActivity(';help', {
+      type: ActivityType.Streaming,
+      name: 'with my self',
+      url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
+    });
   };
 
   private onMessageCreate = async (message: Message) => {
