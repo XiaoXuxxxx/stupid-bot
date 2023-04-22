@@ -100,5 +100,3 @@ export default class StupidBot {
     await commandable.execute(message, args);
   };
 }
-
-// wow this commit is signed
