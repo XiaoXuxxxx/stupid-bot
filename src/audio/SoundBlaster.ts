@@ -18,17 +18,21 @@ export default class SoundBlaster {
   private readonly soundBlasterActioner: SoundBlasterActioner;
   private queue: Queue;
   private isPlaying = false;
+  private nodeTimeout: NodeJS.Timeout | null = null;
+  private timeoutInMS: number;
 
   public constructor(
     guildId: string,
-    soundBlasterActioner: SoundBlasterActioner
+    soundBlasterActioner: SoundBlasterActioner,
+    timeoutInMS: number
   ) {
     this.guildId = guildId;
     this.soundBlasterActioner = soundBlasterActioner.loadSoundBlaster(this);
-
+    this.timeoutInMS = timeoutInMS;
     this.queue = new Queue();
     this.audioPlayer = createAudioPlayer();
     this.audioPlayer.on(AudioPlayerStatus.Idle, () => this.onIdle());
+    this.countdownToTerminate();
   }
 
   public getAudioPlayer(): AudioPlayer {
@@ -101,6 +105,11 @@ export default class SoundBlaster {
     voiceConnection.subscribe(this.audioPlayer);
     this.soundBlasterActioner.alertPlaying();
     this.isPlaying = true;
+
+    if (this.nodeTimeout) {
+      clearTimeout(this.nodeTimeout);
+      this.nodeTimeout = null;
+    }
   }
 
   public async jumpToTrack(index: number) {
@@ -160,7 +169,30 @@ export default class SoundBlaster {
   }
 
   private async onIdle() {
-    this.playNextTrack();
     this.isPlaying = false;
+    this.playNextTrack();
+
+    if (
+      this.queue.getUpcomingTracks().length === 0 &&
+      this.audioPlayer.state.status === AudioPlayerStatus.Idle
+    ) {
+      this.countdownToTerminate();
+    }
+  }
+
+  private timeoutAction() {
+    this.terminate();
+  }
+
+  private countdownToTerminate() {
+    if (this.nodeTimeout) {
+      clearTimeout(this.nodeTimeout);
+      this.nodeTimeout = null;
+    }
+
+    this.nodeTimeout = setTimeout(
+      this.timeoutAction.bind(this),
+      this.timeoutInMS
+    );
   }
 }

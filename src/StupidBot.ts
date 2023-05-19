@@ -23,6 +23,7 @@ export default class StupidBot {
   private readonly client: Client;
   private readonly commandByAlias: Map<string, Commandable> = new Map();
   private readonly prefix = ';';
+  private readonly timeoutInMS = 1000 * 60;
 
   public constructor(token: string) {
     this.token = token;
@@ -36,7 +37,7 @@ export default class StupidBot {
       ]
     });
 
-    const soundBlasterManager = new SoundBlasterManager();
+    const soundBlasterManager = new SoundBlasterManager(this.timeoutInMS);
     const trackFactory = new TrackFactory();
 
     this.bindEvent(Events.ClientReady, this.onReady);

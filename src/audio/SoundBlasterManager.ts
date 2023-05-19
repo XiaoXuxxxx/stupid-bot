@@ -2,13 +2,22 @@ import SoundBlaster from '@/src/audio/SoundBlaster';
 import SoundBlasterActioner from '@/src/audio/SoundBlasterActioner';
 
 export default class SoundBlasterManager {
+  private readonly timeoutInMS: number;
   private readonly soundBlasterByGuildId: Map<string, SoundBlaster> = new Map();
+
+  public constructor(timeoutInMS: number) {
+    this.timeoutInMS = timeoutInMS;
+  }
 
   public getSoundBlaster(guildId: string): SoundBlaster {
     let soundBlaster = this.soundBlasterByGuildId.get(guildId);
 
     if (!soundBlaster) {
-      soundBlaster = new SoundBlaster(guildId, new SoundBlasterActioner());
+      soundBlaster = new SoundBlaster(
+        guildId,
+        new SoundBlasterActioner(),
+        this.timeoutInMS
+      );
       this.soundBlasterByGuildId.set(guildId, soundBlaster);
     }
 
