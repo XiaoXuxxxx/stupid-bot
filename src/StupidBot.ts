@@ -1,3 +1,4 @@
+import { ConfigContainer } from '@/src/ConfigContainer';
 import SoundBlasterManager from '@/src/audio/SoundBlasterManager';
 import TrackFactory from '@/src/audio/TrackFactory';
 import Commandable from '@/src/commands/Commandable';
@@ -22,10 +23,10 @@ export default class StupidBot {
   private readonly token: string;
   private readonly client: Client;
   private readonly commandByAlias: Map<string, Commandable> = new Map();
-  private readonly prefix = ';';
-  private readonly timeoutInMS = 1000 * 60;
+  private readonly config: ConfigContainer;
 
-  public constructor(token: string) {
+  public constructor(token: string, config: ConfigContainer) {
+    this.config = config;
     this.token = token;
     this.client = new Client({
       intents: [
@@ -37,7 +38,9 @@ export default class StupidBot {
       ]
     });
 
-    const soundBlasterManager = new SoundBlasterManager(this.timeoutInMS);
+    const soundBlasterManager = new SoundBlasterManager(
+      this.config.timeoutInMS
+    );
     const trackFactory = new TrackFactory();
 
     this.bindEvent(Events.ClientReady, this.onReady);
@@ -53,7 +56,7 @@ export default class StupidBot {
       new Jump(soundBlasterManager)
     ]);
 
-    const help = new Help(this.commandByAlias, this.prefix);
+    const help = new Help(this.commandByAlias, this.config.prefix);
     this.bindCommands([help]);
 
     this.start();
@@ -88,7 +91,7 @@ export default class StupidBot {
   };
 
   private onMessageCreate = async (message: Message) => {
-    const prefix = this.prefix;
+    const prefix = this.config.prefix;
     if (!message.content.startsWith(prefix)) return;
 
     const args = message.content.slice(prefix.length).trim().split(/ +/);

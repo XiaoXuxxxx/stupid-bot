@@ -9,7 +9,7 @@ export default class Play implements Commandable {
   public name = 'play';
   public aliases = ['p', 'play'];
   public description =
-    '**play the song by url or search**\n*example*\n`;play https://www.youtube.com/watch?v=6TP0abZdRXg`\n`;play bonk sound effect`';
+    '**play the song by url or search**\n*example*\n`{{PREFIX}}play https://www.youtube.com/watch?v=6TP0abZdRXg`\n`{{PREFIX}}play bonk sound effect`';
 
   private soundBlasterManager: SoundBlasterManager;
   private trackFactory: TrackFactory;

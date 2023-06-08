@@ -6,7 +6,7 @@ export default class Jump implements Commandable {
   public name = 'jump';
   public aliases = ['j', 'jump'];
   public description =
-    '**jump to the specific song in the queue**\n *example*\n`;jump 5` for jump to the next 5 song\n`;jump -5` for jumpj to the 5 previous song';
+    '**jump to the specific song in the queue**\n *example*\n`{{PREFIX}}jump 5` for jump to the next 5 song\n`{{PREFIX}}jump -5` for jump to the 5 previous song';
 
   private soundBlasterManager: SoundBlasterManager;
 

@@ -15,8 +15,6 @@ export default class Help implements Commandable {
     this.commandMap = commandMap;
     this.prefix = prefix;
 
-    // reduce the commandMap to an array of strings
-
     const stringsByCommandAble = Array.from(this.commandMap.values()).map(
       (command) => {
         return {
@@ -27,7 +25,6 @@ export default class Help implements Commandable {
       }
     );
 
-    // filter the duplicate name
     const uniqueStringsByCommandAble = stringsByCommandAble.filter(
       (command, index, self) => {
         return (
@@ -39,16 +36,17 @@ export default class Help implements Commandable {
       }
     );
 
-    // map the array of objects to an array of strings
     const astringsByCommandAble = uniqueStringsByCommandAble.map((command) => {
       return `[\`${this.prefix}${command.aliases.join(
         `\`][\`${this.prefix}`
       )}\`]\n${command.description}`;
     });
 
-    const embed = new EmbedBuilder()
-      .setDescription(astringsByCommandAble.join('\n\n'))
-      .setTitle('HELP');
+    const final = astringsByCommandAble
+      .join('\n\n')
+      .replace('{{PREFIX}}', this.prefix);
+
+    const embed = new EmbedBuilder().setDescription(final).setTitle('HELP');
 
     this.embed = embed;
   }

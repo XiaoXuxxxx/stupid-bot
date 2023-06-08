@@ -1,3 +1,4 @@
+import { ConfigContainer } from '@/src/ConfigContainer';
 import StupidBot from '@/src/StupidBot';
 import * as dotenv from 'dotenv';
 dotenv.config();
@@ -7,4 +8,4 @@ if (!token) {
   throw new Error('No token provided');
 }
 
-new StupidBot(token);
+new StupidBot(token, new ConfigContainer());

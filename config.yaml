@@ -1,0 +1,3 @@
+prefix: "]"
+voiceBehavior:
+  timeoutInMS: 300000
