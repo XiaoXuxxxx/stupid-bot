@@ -9,12 +9,11 @@ type Config = RecursivePartial<{
   prefix: string;
   voiceBehavior: {
     timeoutInMS: string;
-  }
-}>
+  };
+}>;
 
 export class ConfigContainer {
-
-  public prefix: string = '[';
+  public prefix = ';';
   public timeoutInMS: number = 1000 * 60 * 5;
 
   public constructor() {
@@ -24,18 +23,18 @@ export class ConfigContainer {
 
       const prefix = config.prefix as unknown;
       if (typeof prefix === 'string' && prefix.length === 1) {
-        console.log(`[CONFIG] use prefix: ${prefix}`)
+        console.log(`[CONFIG] use prefix: ${prefix}`);
         this.prefix = prefix;
       }
 
-      const timeout = config.voiceBehavior?.timeoutInMS
+      const timeout = config.voiceBehavior?.timeoutInMS;
       if (typeof timeout === 'number') {
-        console.log(`[CONFIG] use timeout: ${timeout}`)
+        console.log(`[CONFIG] use timeout: ${timeout}`);
         this.timeoutInMS = timeout;
       }
     } catch (e) {
-      console.log(e)
-      console.log('[CONFIG] no config file, use default config')
+      console.log(e);
+      console.log('[CONFIG] no config file, use default config');
     }
   }
 }
