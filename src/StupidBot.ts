@@ -22,7 +22,9 @@ import {
   Message,
   Routes
 } from 'discord.js';
+import dotenv from 'dotenv';
 
+dotenv.config();
 export default class StupidBot {
   private readonly token: string;
   private readonly client: Client;
@@ -89,7 +91,13 @@ export default class StupidBot {
 
   public async registerCommands() {
     const clientId = this.client.user?.id;
-    const devGuildId = '786163738498564096';
+    const devGuildId = process.env.DEV_GUILD_ID;
+
+    if (devGuildId === undefined) {
+      console.log('registering global command');
+    } else {
+      console.log(`registering dev command guildId: ${devGuildId}`);
+    }
 
     if (clientId === undefined) {
       console.log('cannot register command');
@@ -100,10 +108,12 @@ export default class StupidBot {
       e.slashCommand.toJSON()
     );
 
-    await this.client.rest.put(
-      Routes.applicationGuildCommands(clientId, devGuildId),
-      { body: commands }
-    );
+    const route =
+      devGuildId !== undefined
+        ? Routes.applicationGuildCommands(clientId, devGuildId)
+        : Routes.applicationCommands(clientId);
+
+    await this.client.rest.put(route, { body: commands });
 
     console.log('done register commands');
   }
