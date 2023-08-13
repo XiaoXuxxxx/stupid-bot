@@ -1,14 +1,15 @@
 import { TrackInfo } from '@/src/audio/resource/ResourceLoadable';
-import { EmbedBuilder, Message } from 'discord.js';
+import { DiscordRequest } from '@/src/discord_request/base/DiscordRequest';
+import { EmbedBuilder } from 'discord.js';
 
 export class AddSongEmbed extends EmbedBuilder {
   private readonly trackInfo: TrackInfo;
-  private readonly trackMessage: Message;
+  private readonly trackRequest: DiscordRequest;
 
-  public constructor(trackInfo: TrackInfo, trackMessage: Message) {
+  public constructor(trackInfo: TrackInfo, trackRequest: DiscordRequest) {
     super();
     this.trackInfo = trackInfo;
-    this.trackMessage = trackMessage;
+    this.trackRequest = trackRequest;
 
     this.build();
     return this;
@@ -37,13 +38,13 @@ export class AddSongEmbed extends EmbedBuilder {
       },
       {
         name: 'Requested by',
-        value: this.trackMessage.author.toString(),
+        value: this.trackRequest.getAuthor().toString(),
         inline: true
       }
     ]);
     this.setFooter({
       text: `Requested date: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}`,
-      iconURL: this.trackMessage.author.avatarURL() ?? undefined
+      iconURL: this.trackRequest.getAuthor().avatarURL() ?? undefined
     });
   }
 

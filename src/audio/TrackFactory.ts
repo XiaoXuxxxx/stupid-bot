@@ -1,10 +1,13 @@
 import Track from '@/src/audio/Track';
 import YoutubeResource from '@/src/audio/resource/YoutubeResource';
-import { Message } from 'discord.js';
+import { DiscordRequest } from '@/src/discord_request/base/DiscordRequest';
 import play from 'play-dl';
 
 export default class TrackFactory {
-  public async getTracks(str: string, message: Message): Promise<Track[]> {
+  public async getTracks(
+    str: string,
+    request: DiscordRequest
+  ): Promise<Track[]> {
     const type = await play.validate(str);
     const expectedType = ['yt_video', 'yt_playlist', 'search', 'so_track'];
     if (!type || !expectedType.includes(type)) {
@@ -13,17 +16,17 @@ export default class TrackFactory {
 
     if (type === 'search') {
       const url = await this.getUrlFromSearch(str);
-      return [new Track(url, new YoutubeResource(url), message)];
+      return [new Track(url, new YoutubeResource(url), request)];
     }
 
     if (type === 'yt_video') {
-      return [new Track(str, new YoutubeResource(str), message)];
+      return [new Track(str, new YoutubeResource(str), request)];
     }
 
     if (type === 'yt_playlist') {
       const urls = await this.getUrlsFromPlaylist(str);
       return urls.map(
-        (url) => new Track(url, new YoutubeResource(url), message)
+        (url) => new Track(url, new YoutubeResource(url), request)
       );
     }
 

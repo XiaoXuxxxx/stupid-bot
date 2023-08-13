@@ -2,14 +2,25 @@ import SoundBlasterManager from '@/src/audio/SoundBlasterManager';
 import Track from '@/src/audio/Track';
 import TrackFactory from '@/src/audio/TrackFactory';
 import Commandable from '@/src/commands/Commandable';
+import { DiscordRequest } from '@/src/discord_request/base/DiscordRequest';
 import { AddSongEmbed } from '@/src/embed/AddSongEmbed';
-import { Message } from 'discord.js';
+import { SlashCommandBuilder } from 'discord.js';
 
 export default class Play implements Commandable {
   public name = 'play';
   public aliases = ['p', 'play'];
   public description =
     '**play the song by url or search**\n*example*\n`{{PREFIX}}play https://www.youtube.com/watch?v=6TP0abZdRXg`\n`{{PREFIX}}play bonk sound effect`';
+
+  public slashCommand = new SlashCommandBuilder()
+    .setName('play')
+    .setDescription('play the song')
+    .addStringOption((option) =>
+      option
+        .setName('url_or_search')
+        .setDescription('url of video or the name of video')
+        .setRequired(true)
+    );
 
   private soundBlasterManager: SoundBlasterManager;
   private trackFactory: TrackFactory;
@@ -22,55 +33,52 @@ export default class Play implements Commandable {
     this.trackFactory = trackFactory;
   }
 
-  public async execute(
-    message: Message<boolean>,
-    args: string[]
-  ): Promise<void> {
-    const channel = message.member?.voice.channel;
-    const guild = message.guild;
+  public async execute(request: DiscordRequest, args: string[]): Promise<void> {
+    const channel = request.getVoiceChannel();
+    const guild = request.getSenderGuild();
 
     if (!channel || !guild) {
-      message.reply('join voice channel first!');
-      message.react('👎');
+      request.reply('join voice channel first!');
+      request.react('👎');
       return;
     }
 
     const soundBlaster = this.soundBlasterManager.getSoundBlaster(guild.id);
     let tracks: Track[] = [];
     try {
-      tracks = await this.trackFactory.getTracks(args.join(' '), message);
+      tracks = await this.trackFactory.getTracks(args.join(' '), request);
     } catch (e) {
       console.error(e);
-      message.reply((e as any).message ?? 'something went wrong');
-      message.react('👎');
+      request.reply((e as any).message ?? 'something went wrong');
+      request.react('👎');
       return;
     }
 
     if (tracks.length === 0) {
-      message.reply('cant find anything');
+      request.reply('cant find anything');
       return;
     }
 
-    message.react('⌛');
+    request.react('⌛');
     await soundBlaster.joinChannel(channel);
     await soundBlaster.playOrQueue(...tracks);
 
-    message.react('👍');
+    request.react('👍');
 
     if (tracks.length > 1) {
-      message.reply('im a playing playlist now');
+      request.reply('im a playing playlist now');
       return;
     }
 
     const trackInfo = await tracks[0].getTrackInfo();
-    const trackMessage = tracks[0].getMessage();
+    const trackMessage = tracks[0].getRequest();
     if (trackInfo === undefined) {
-      message.reply('trackInfo is undefined i will handle it later');
+      request.reply('trackInfo is undefined i will handle it later');
       return;
     }
 
     const embed = new AddSongEmbed(trackInfo, trackMessage);
 
-    message.reply({ embeds: [embed] });
+    request.reply({ embeds: [embed] });
   }
 }

@@ -10,13 +10,13 @@ export default class SoundBlasterActioner {
     if (!currentTrack) return;
 
     const trackInfo = await currentTrack.getTrackInfo();
-    const message = currentTrack.getMessage();
+    const message = currentTrack.getRequest();
 
     if (!trackInfo || !message) return;
 
     const embed = new PlaySongEmbed(trackInfo, message);
 
-    currentTrack.getMessage().channel.send({ embeds: [embed] });
+    currentTrack.getRequest().send({ embeds: [embed] });
   }
 
   public loadSoundBlaster(soundBlaster: SoundBlaster): SoundBlasterActioner {

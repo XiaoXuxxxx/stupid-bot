@@ -1,6 +1,6 @@
 import { ConfigContainer } from '@/src/ConfigContainer';
 import StupidBot from '@/src/StupidBot';
-import * as dotenv from 'dotenv';
+import dotenv from 'dotenv';
 dotenv.config();
 
 const token = process.env.TOKEN;

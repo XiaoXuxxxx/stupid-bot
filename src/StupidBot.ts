@@ -10,19 +10,24 @@ import Ping from '@/src/commands/Ping';
 import Play from '@/src/commands/Play';
 import Queue from '@/src/commands/Queue';
 import Skip from '@/src/commands/Skip';
+import { InteractionDiscordRequest } from '@/src/discord_request/InteractionDiscordRequest';
+import { MessageDiscordRequest } from '@/src/discord_request/MessageDiscordRequest';
 import {
   ActivityType,
   Awaitable,
   Client,
   Events,
   GatewayIntentBits,
-  Message
+  Interaction,
+  Message,
+  Routes
 } from 'discord.js';
 
 export default class StupidBot {
   private readonly token: string;
   private readonly client: Client;
   private readonly commandByAlias: Map<string, Commandable> = new Map();
+  private readonly commandByName: Map<string, Commandable> = new Map();
   private readonly config: ConfigContainer;
 
   public constructor(token: string, config: ConfigContainer) {
@@ -43,8 +48,12 @@ export default class StupidBot {
     );
     const trackFactory = new TrackFactory();
 
-    this.bindEvent(Events.ClientReady, this.onReady);
-    this.bindEvent(Events.MessageCreate, this.onMessageCreate);
+    this.bindEvent(Events.ClientReady, this.onReady.bind(this));
+    this.bindEvent(
+      Events.InteractionCreate,
+      this.onInteractionCreate.bind(this)
+    );
+    this.bindEvent(Events.MessageCreate, this.onMessageCreate.bind(this));
 
     this.bindCommands([
       new Ping(),
@@ -62,35 +71,58 @@ export default class StupidBot {
     this.start();
   }
 
-  public bindEvent = (
+  public bindEvent(
     event: string,
     listener: (...args: any[]) => Awaitable<void>
-  ): void => {
+  ): void {
     this.client.on(event, listener);
-  };
+  }
 
-  public bindCommands = (commands: Commandable[]) => {
+  public bindCommands(commands: Commandable[]) {
     commands.forEach((command) => {
       command.aliases.forEach((alias) => {
         this.commandByAlias.set(alias, command);
       });
+      this.commandByName.set(command.name, command);
     });
-  };
+  }
 
-  public start = (): void => {
-    this.client.login(this.token);
-  };
+  public async registerCommands() {
+    const clientId = this.client.user?.id;
+    const devGuildId = '786163738498564096';
 
-  private onReady = (client: Client): void => {
+    if (clientId === undefined) {
+      console.log('cannot register command');
+      return;
+    }
+
+    const commands = Array.from(this.commandByName.values()).map((e) =>
+      e.slashCommand.toJSON()
+    );
+
+    await this.client.rest.put(
+      Routes.applicationGuildCommands(clientId, devGuildId),
+      { body: commands }
+    );
+
+    console.log('done register commands');
+  }
+
+  public async start(): Promise<void> {
+    await this.client.login(this.token);
+    await this.registerCommands();
+  }
+
+  private onReady(client: Client): void {
     console.log('wake up again');
     client.user?.setActivity(';help', {
       type: ActivityType.Streaming,
       name: 'with my self',
       url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
     });
-  };
+  }
 
-  private onMessageCreate = async (message: Message) => {
+  private async onMessageCreate(message: Message) {
     const prefix = this.config.prefix;
     if (!message.content.startsWith(prefix)) return;
 
@@ -101,8 +133,24 @@ export default class StupidBot {
     const commandable = this.commandByAlias.get(command);
     if (!commandable) return;
 
-    await commandable.execute(message, args);
-  };
-}
+    await commandable.execute(new MessageDiscordRequest(message), args);
+  }
 
-// again
+  private async onInteractionCreate(interaction: Interaction) {
+    if (!interaction.isCommand()) {
+      return;
+    }
+
+    const commandable = this.commandByName.get(interaction.commandName);
+    if (commandable === undefined) {
+      return;
+    }
+
+    await interaction.deferReply();
+    const args = interaction.options.data.map((e) => e.value);
+    await commandable.execute(
+      new InteractionDiscordRequest(interaction),
+      args as string[]
+    );
+  }
+}

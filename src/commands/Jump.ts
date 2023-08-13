@@ -1,6 +1,7 @@
 import SoundBlasterManager from '@/src/audio/SoundBlasterManager';
 import Commandable from '@/src/commands/Commandable';
-import { Message } from 'discord.js';
+import { DiscordRequest } from '@/src/discord_request/base/DiscordRequest';
+import { SlashCommandBuilder } from 'discord.js';
 
 export default class Jump implements Commandable {
   public name = 'jump';
@@ -8,29 +9,36 @@ export default class Jump implements Commandable {
   public description =
     '**jump to the specific song in the queue**\n *example*\n`{{PREFIX}}jump 5` for jump to the next 5 song\n`{{PREFIX}}jump -5` for jump to the 5 previous song';
 
+  public slashCommand = new SlashCommandBuilder()
+    .setName('jump')
+    .setDescription('jump to the selected song')
+    .addIntegerOption((option) =>
+      option
+        .setName('position')
+        .setDescription('position to jump')
+        .setRequired(true)
+    );
+
   private soundBlasterManager: SoundBlasterManager;
 
   public constructor(soundBlasterManager: SoundBlasterManager) {
     this.soundBlasterManager = soundBlasterManager;
   }
 
-  public async execute(
-    message: Message<boolean>,
-    args: string[]
-  ): Promise<void> {
-    const channel = message.member?.voice.channel;
-    const guild = message.guild;
-
+  public async execute(request: DiscordRequest, args: string[]): Promise<void> {
+    const channel = request.getVoiceChannel();
+    const guild = request.getSenderGuild();
     if (!channel || !guild) {
-      message.reply('join voice channel first!');
-      message.react('👎');
+      request.reply('join voice channel first!');
+      request.react('👎');
       return;
     }
 
     const index = parseInt(args[0], 10);
+
     if (isNaN(index)) {
-      message.reply('invalid index');
-      message.react('👎');
+      request.reply('invalid index');
+      request.react('👎');
       return;
     }
 
@@ -38,6 +46,6 @@ export default class Jump implements Commandable {
 
     await soundBlaster.jumpToTrack(index);
 
-    message.react('👍');
+    request.react('👍');
   }
 }

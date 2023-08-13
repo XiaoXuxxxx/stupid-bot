@@ -1,14 +1,15 @@
 import { TrackInfo } from '@/src/audio/resource/ResourceLoadable';
-import { EmbedBuilder, Message } from 'discord.js';
+import { DiscordRequest } from '@/src/discord_request/base/DiscordRequest';
+import { EmbedBuilder } from 'discord.js';
 
 export class PlaySongEmbed extends EmbedBuilder {
   private readonly trackInfo: TrackInfo;
-  private readonly trackMessage: Message;
+  private readonly trackRequest: DiscordRequest;
 
-  public constructor(trackInfo: TrackInfo, trackMessage: Message) {
+  public constructor(trackInfo: TrackInfo, trackRequest: DiscordRequest) {
     super();
     this.trackInfo = trackInfo;
-    this.trackMessage = trackMessage;
+    this.trackRequest = trackRequest;
 
     this.build();
     return this;
@@ -18,11 +19,11 @@ export class PlaySongEmbed extends EmbedBuilder {
     this.setColor('#FFBF00');
     this.setTitle('Now playing...');
     this.setDescription(
-      `\`[${this.secondToTime(this.trackInfo.duration)}]\` [${
+      `\`[${this.secondToTime(this.trackInfo.duration)}]\`[${
         this.trackInfo.title
-      }](${
-        this.trackInfo.url
-      })\nrequested by ${this.trackMessage.author.toString()}`
+      }](${this.trackInfo.url})\nrequested by ${this.trackRequest
+        .getAuthor()
+        .toString()}`
     );
   }
 

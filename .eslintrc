@@ -13,6 +13,6 @@
     "quotes": ["warn", "single"],
     // semicolons
     "semi": ["off", "always"],
-    "prettier/prettier": "error"
+    "prettier/prettier": "warn"
   }
 }

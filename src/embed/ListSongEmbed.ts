@@ -73,12 +73,12 @@ export class ListSongEmbed extends EmbedBuilder {
 
   private async trackToQueueTxt(track: Track, index: number) {
     const trackInfo = await track.getTrackInfo();
-    const messagex = track.getMessage();
+    const messagex = track.getRequest();
     const desc = `\`${index}\` \`[${this.secondToTime(
       trackInfo?.duration ?? 0
-    )}]\` [${trackInfo?.title.substring(0, 20)}](${trackInfo?.url}) ${
-      messagex.author
-    }`;
+    )}]\` [${trackInfo?.title.substring(0, 20)}](${
+      trackInfo?.url
+    }) ${messagex.getAuthor()}`;
 
     return desc;
   }

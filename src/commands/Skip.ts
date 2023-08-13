@@ -1,12 +1,17 @@
 import SoundBlasterManager from '@/src/audio/SoundBlasterManager';
 import Commandable from '@/src/commands/Commandable';
+import { DiscordRequest } from '@/src/discord_request/base/DiscordRequest';
 import CommonEmbed from '@/src/embed/CommonEmbed';
-import { Message } from 'discord.js';
+import { SlashCommandBuilder } from 'discord.js';
 
 export default class Skip implements Commandable {
   public name = 'skip';
   public aliases = ['s', 'skip'];
   public description = '**skip 1 track**';
+
+  public slashCommand: SlashCommandBuilder = new SlashCommandBuilder()
+    .setName('skip')
+    .setDescription('skip the current song');
 
   private soundBlasterManager: SoundBlasterManager;
 
@@ -14,16 +19,13 @@ export default class Skip implements Commandable {
     this.soundBlasterManager = soundBlasterManager;
   }
 
-  public async execute(
-    message: Message<boolean>,
-    args: string[]
-  ): Promise<void> {
-    const channel = message.member?.voice.channel;
-    const guild = message.guild;
+  public async execute(request: DiscordRequest, args: string[]): Promise<void> {
+    const channel = request.getVoiceChannel();
+    const guild = request.getSenderGuild();
 
     if (!channel || !guild) {
-      message.reply('join voice channel first!');
-      message.react('👎');
+      request.reply('join voice channel first!');
+      request.react('👎');
       return;
     }
 
@@ -32,8 +34,8 @@ export default class Skip implements Commandable {
     await soundBlaster.playNextTrack();
 
     const embed = new CommonEmbed('Skip', 'Skip 1 step', '#FF5000');
-    message.reply({ embeds: [embed] });
+    request.reply({ embeds: [embed] });
 
-    message.react('👍');
+    request.react('👍');
   }
 }

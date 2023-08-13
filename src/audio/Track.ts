@@ -1,28 +1,28 @@
 import ResourceLoadable from '@/src/audio/resource/ResourceLoadable';
-import { Message } from 'discord.js';
+import { DiscordRequest } from '@/src/discord_request/base/DiscordRequest';
 
 export default class Track {
   private readonly rawUrl: string;
   private readonly resourceLoader: ResourceLoadable;
-  private readonly message: Message;
+  private readonly request: DiscordRequest;
   private isFailed = false;
 
   constructor(
     rawUrl: string,
     resourceLoadable: ResourceLoadable,
-    message: Message
+    request: DiscordRequest
   ) {
     this.rawUrl = rawUrl;
     this.resourceLoader = resourceLoadable;
-    this.message = message;
+    this.request = request;
   }
 
   public getRawUrl(): string {
     return this.rawUrl;
   }
 
-  public getMessage(): Message {
-    return this.message;
+  public getRequest(): DiscordRequest {
+    return this.request;
   }
 
   public async getAudioResource() {

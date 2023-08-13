@@ -1,12 +1,17 @@
 import SoundBlasterManager from '@/src/audio/SoundBlasterManager';
 import Commandable from '@/src/commands/Commandable';
+import { DiscordRequest } from '@/src/discord_request/base/DiscordRequest';
 import { ListSongEmbed } from '@/src/embed/ListSongEmbed';
-import { Message } from 'discord.js';
+import { SlashCommandBuilder } from 'discord.js';
 
 export default class Queue implements Commandable {
-  public name = 'list';
-  public aliases = ['q', 'queue'];
-  public description = '**show the current/upcomming/previous tracks**';
+  public name = 'queue';
+  public aliases = ['q', 'list'];
+  public description = '**show the current/upcoming/previous tracks**';
+
+  public slashCommand: SlashCommandBuilder = new SlashCommandBuilder()
+    .setName('queue')
+    .setDescription('show the queue');
 
   private soundBlasterManager: SoundBlasterManager;
 
@@ -14,16 +19,13 @@ export default class Queue implements Commandable {
     this.soundBlasterManager = soundBlasterManager;
   }
 
-  public async execute(
-    message: Message<boolean>,
-    args: string[]
-  ): Promise<void> {
-    const channel = message.member?.voice.channel;
-    const guild = message.guild;
+  public async execute(request: DiscordRequest, args: string[]): Promise<void> {
+    const channel = request.getVoiceChannel();
+    const guild = request.getSenderGuild();
 
     if (!channel || !guild) {
-      message.reply('join voice channel first!');
-      message.react('👎');
+      request.reply('join voice channel first!');
+      request.react('👎');
       return;
     }
 
@@ -32,14 +34,14 @@ export default class Queue implements Commandable {
     const currentTrack = queue.getCurrentTrack();
 
     if (!currentTrack) {
-      message.reply('no song is playing');
-      message.react('👎');
+      request.reply('no song is playing');
+      request.react('👎');
       return;
     }
 
     const embed = await new ListSongEmbed(queue).build();
 
-    message.reply({ embeds: [embed] });
-    message.react('👍');
+    request.reply({ embeds: [embed] });
+    request.react('👍');
   }
 }
