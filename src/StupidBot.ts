@@ -1,6 +1,8 @@
 import { ConfigContainer } from '@/src/ConfigContainer';
 import SoundBlasterManager from '@/src/audio/SoundBlasterManager';
 import TrackFactory from '@/src/audio/TrackFactory';
+import Clear from '@/src/commands/Clear';
+import ClearAll from '@/src/commands/ClearAll';
 import Commandable from '@/src/commands/Commandable';
 import Connect from '@/src/commands/Connect';
 import Disconnect from '@/src/commands/Disconnect';
@@ -8,6 +10,7 @@ import Help from '@/src/commands/Help';
 import Jump from '@/src/commands/Jump';
 import Ping from '@/src/commands/Ping';
 import Play from '@/src/commands/Play';
+import Prune from '@/src/commands/Prune';
 import Queue from '@/src/commands/Queue';
 import Skip from '@/src/commands/Skip';
 import { InteractionDiscordRequest } from '@/src/discord_request/InteractionDiscordRequest';
@@ -64,7 +67,10 @@ export default class StupidBot {
       new Disconnect(soundBlasterManager),
       new Skip(soundBlasterManager),
       new Queue(soundBlasterManager),
-      new Jump(soundBlasterManager)
+      new Jump(soundBlasterManager),
+      new Clear(soundBlasterManager),
+      new ClearAll(soundBlasterManager),
+      new Prune(soundBlasterManager)
     ]);
 
     const help = new Help(this.commandByAlias, this.config.prefix);

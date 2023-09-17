@@ -3,14 +3,13 @@ import Commandable from '@/src/commands/Commandable';
 import { DiscordRequest } from '@/src/discord_request/base/DiscordRequest';
 import { SlashCommandBuilder } from 'discord.js';
 
-export default class Connect implements Commandable {
-  public name = 'connect';
-  public aliases = ['connect'];
-  public description = '**make the bot connect to voice channel**';
-
-  public slashCommand: SlashCommandBuilder = new SlashCommandBuilder()
-    .setName('connect')
-    .setDescription('connect the bot to the room');
+export default class Clear implements Commandable {
+  public name = 'clear';
+  public aliases: string[] = ['c', 'clear'];
+  public description = 'clear the upcoming queue';
+  public slashCommand = new SlashCommandBuilder()
+    .setName('clear')
+    .setDescription('clear the upcoming queue');
 
   private soundBlasterManager: SoundBlasterManager;
 
@@ -20,15 +19,19 @@ export default class Connect implements Commandable {
 
   public async execute(request: DiscordRequest, args: string[]): Promise<void> {
     const channel = request.getVoiceChannel();
-    const guildId = request.getSenderGuild()?.id;
+    const guild = request.getSenderGuild();
 
-    if (!channel || !guildId) {
+    if (!channel || !guild) {
       request.reply('join voice channel first!');
       request.react('👎');
       return;
     }
-    this.soundBlasterManager.getSoundBlaster(guildId).joinChannel(channel);
 
+    const soundBlaster = this.soundBlasterManager.getSoundBlaster(guild.id);
+
+    soundBlaster.getQueue().clearUpcomingTracks();
+
+    request.reply('cleared the upcoming queue!');
     request.react('👍');
   }
 }
