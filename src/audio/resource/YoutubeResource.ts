@@ -2,7 +2,7 @@ import ResourceLoadable, {
   TrackInfo
 } from '@/src/audio/resource/ResourceLoadable';
 import { AudioResource, createAudioResource } from '@discordjs/voice';
-import play from 'play-dl';
+import play, { YouTubeVideo } from 'play-dl';
 
 export default class YoutubeResource implements ResourceLoadable {
   private readonly rawUrl: string;
@@ -13,23 +13,22 @@ export default class YoutubeResource implements ResourceLoadable {
   }
 
   public async loadTrackInfo(): Promise<void> {
-    let video;
+    let video: YouTubeVideo | undefined;
     try {
       const { video_details } = await play.video_info(this.rawUrl);
       video = video_details;
     } catch (e) {
       console.error(e);
-      return;
     }
 
     const trackInfo: TrackInfo = {
-      title: video.title ?? 'Unknown',
-      duration: video.durationInSec,
-      url: video.url,
-      thumbnailUrl: video.thumbnails[0].url,
-      channelIconUrl: video.channel?.iconURL({ size: 128 }),
-      channelName: video.channel?.name ?? 'Unknown',
-      channelUrl: video.channel?.url,
+      title: video?.title ?? '<UNKNOWN>',
+      duration: video?.durationInSec ?? 0,
+      url: video?.url ?? this.rawUrl,
+      thumbnailUrl: video?.thumbnails[0].url ?? this.rawUrl,
+      channelIconUrl: video?.channel?.iconURL({ size: 128 }),
+      channelName: video?.channel?.name ?? 'Unknown',
+      channelUrl: video?.channel?.url,
       source: 'youtube'
     };
 
