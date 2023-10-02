@@ -1,7 +1,9 @@
 # stupid-bot
+
 The poorly written music discord bot
 
 ## Requirement
+
 The token of your discord bot that has the guild message permission and voice guild permission
 
 ## How to run
@@ -10,6 +12,14 @@ pass the env `TOKEN` to the container. for example, pass by the env file by crea
 
 ```sh
 TOKEN=your-discord-bot-token
+```
+
+then create config file name `config.yaml` and the content is
+
+```yaml
+prefix: ";"
+voiceBehavior:
+  timeoutInMS: 300000
 ```
 
 and then run
