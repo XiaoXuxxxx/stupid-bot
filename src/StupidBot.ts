@@ -131,9 +131,8 @@ export default class StupidBot {
 
   private onReady(client: Client): void {
     console.log('wake up again');
-    client.user?.setActivity(';help', {
+    client.user?.setActivity(`${this.config.prefix}help or /help`, {
       type: ActivityType.Streaming,
-      name: 'with my self',
       url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
     });
   }
