@@ -43,6 +43,12 @@ export default class Play implements Commandable {
       return;
     }
 
+    if (args.length === 0) {
+      request.reply('please enter the url or search');
+      request.react('👎');
+      return;
+    }
+
     const soundBlaster = this.soundBlasterManager.getSoundBlaster(guild.id);
     let tracks: Track[] = [];
     try {
