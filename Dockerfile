@@ -24,7 +24,7 @@ WORKDIR /app
 
 COPY --from=deps ./app/node_modules ./node_modules
 COPY ./src/ ./src/
-COPY .swcrc tsconfig.json package.json pnpm-lock.yaml ./
+COPY tsconfig.json package.json pnpm-lock.yaml ./
 
 RUN corepack enable
 RUN pnpm build

@@ -19,9 +19,9 @@ export class AddSongEmbed extends EmbedBuilder {
     this.setColor('#0099ff');
     this.setTitle(this.trackInfo.title);
     this.setURL(this.trackInfo.url);
-    this.setThumbnail(this.trackInfo.thumbnailUrl);
+    this.setThumbnail(this.trackInfo.thumbnailUrl ?? null);
     this.setAuthor({
-      name: this.trackInfo.channelName,
+      name: this.trackInfo.channelName ?? 'unknown',
       url: this.trackInfo.channelUrl,
       iconURL: this.trackInfo.channelIconUrl
     });
