@@ -18,7 +18,7 @@ export default class SoundBlaster {
   private audioPlayer: AudioPlayer;
   private readonly guildId: string;
   private readonly soundBlasterActioner: SoundBlasterActioner;
-  private queue: Queue;
+  private queue: Queue<Track>;
   private isPlaying = false;
   private nodeTimeout: NodeJS.Timeout | null = null;
   private timeoutInMS: number;
@@ -42,7 +42,7 @@ export default class SoundBlaster {
     return this.audioPlayer;
   }
 
-  public getQueue(): Queue {
+  public getQueue(): Queue<Track> {
     return this.queue;
   }
 
@@ -68,9 +68,9 @@ export default class SoundBlaster {
   }
 
   public async playOrQueue(...tracks: Track[]) {
-    this.queue.addTracks(...tracks);
+    this.queue.addItems(...tracks);
 
-    if (this.queue.getUpcomingTracks().length === 0) {
+    if (this.queue.getUpcomingItems().length === 0) {
       this.playTrack(tracks[0]);
       this.isPlaying = true;
       return;
@@ -82,7 +82,7 @@ export default class SoundBlaster {
   }
 
   public async playNextTrack() {
-    const track = this.queue.nextTrack();
+    const track = this.queue.nextItem();
     if (!track) {
       this.audioPlayer.stop();
       this.isPlaying = false;
@@ -117,8 +117,8 @@ export default class SoundBlaster {
   }
 
   public async jumpToTrack(index: number) {
-    const track = this.queue.jumpToTrack(
-      this.queue.getCurrentTrackIndex() + index
+    const track = this.queue.jumpToItem(
+      this.queue.getCurrentIndex() + index
     );
     if (!track) {
       this.isPlaying = false;
@@ -130,9 +130,9 @@ export default class SoundBlaster {
   }
 
   public async getQueueText(): Promise<string> {
-    const previousTracks = this.queue.getPreviousTracks();
-    const currentTrack = this.queue.getCurrentTrack();
-    const upComingTracks = this.queue.getUpcomingTracks();
+    const previousTracks = this.queue.getPreviousItems();
+    const currentTrack = this.queue.getCurrentItem();
+    const upComingTracks = this.queue.getUpcomingItems();
 
     let text = '';
 
@@ -177,7 +177,7 @@ export default class SoundBlaster {
     this.playNextTrack();
 
     if (
-      this.queue.getUpcomingTracks().length === 0 &&
+      this.queue.getUpcomingItems().length === 0 &&
       this.audioPlayer.state.status === AudioPlayerStatus.Idle
     ) {
       this.countdownToTerminate();

@@ -3,17 +3,17 @@ import Track from '@/src/audio/Track';
 import { EmbedBuilder } from 'discord.js';
 
 export class ListSongEmbed extends EmbedBuilder {
-  private readonly queue: Queue;
+  private readonly queue: Queue<Track>;
 
-  public constructor(queue: Queue) {
+  public constructor(queue: Queue<Track>) {
     super();
     this.queue = queue;
   }
 
   public async build() {
-    const currentTrack = this.queue.getCurrentTrack();
-    const previousTracks = this.queue.getPreviousTracks();
-    const upcomingTracks = this.queue.getUpcomingTracks();
+    const currentTrack = this.queue.getCurrentItem();
+    const previousTracks = this.queue.getPreviousItems();
+    const upcomingTracks = this.queue.getUpcomingItems();
 
     this.setColor('#7F00FF');
     this.setTitle('Queue');
@@ -76,9 +76,8 @@ export class ListSongEmbed extends EmbedBuilder {
     const messagex = track.getRequest();
     const desc = `\`${index}\` \`[${this.secondToTime(
       trackInfo?.duration ?? 0
-    )}]\` [${trackInfo?.title.substring(0, 20)}](${
-      trackInfo?.url
-    }) ${messagex.getAuthor()}`;
+    )}]\` [${trackInfo?.title.substring(0, 20)}](${trackInfo?.url
+      }) ${messagex.getAuthor()}`;
 
     return desc;
   }

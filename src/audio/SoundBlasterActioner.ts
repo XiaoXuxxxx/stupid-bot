@@ -5,7 +5,7 @@ export default class SoundBlasterActioner {
   private soundBlaster?: SoundBlaster;
 
   public async alertPlaying(): Promise<void> {
-    const currentTrack = this.soundBlaster?.getQueue().getCurrentTrack();
+    const currentTrack = this.soundBlaster?.getQueue().getCurrentItem();
 
     if (!currentTrack) return;
 

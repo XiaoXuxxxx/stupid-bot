@@ -1,78 +1,77 @@
-import Track from '@/src/audio/Track';
 
-export default class Queue {
-  private tracks: Track[] = [];
-  private currentTrackIndex = 0;
+export default class Queue<T> {
+  private items: T[] = [];
+  private currentIndex = 0;
 
-  public getCurrentTrackIndex(): number {
-    return this.currentTrackIndex;
+  public getCurrentIndex(): number {
+    return this.currentIndex;
   };
 
-  public getUpcomingTracks(): Track[] {
-    return this.tracks.slice(this.currentTrackIndex + 1);
+  public getUpcomingItems(): T[] {
+    return this.items.slice(this.currentIndex + 1);
   };
 
-  public getCurrentTrack(): Track | null {
-    return this.tracks[this.currentTrackIndex] ?? null;
+  public getCurrentItem(): T | null {
+    return this.items[this.currentIndex] ?? null;
   };
 
-  public getPreviousTracks(): Track[] {
-    return this.tracks.slice(0, this.currentTrackIndex);
+  public getPreviousItems(): T[] {
+    return this.items.slice(0, this.currentIndex);
   };
 
-  public addTracks(...tracks: Track[]): void {
-    this.tracks.push(...tracks);
+  public addItems(...items: T[]): void {
+    this.items.push(...items);
   };
 
-  public nextTrack(): Track | null {
-    if (this.tracks.length === this.currentTrackIndex + 1) {
+  public nextItem(): T | null {
+    if (this.items.length === this.currentIndex + 1) {
       return null;
     }
 
-    if (this.tracks.length === 0) {
+    if (this.items.length === 0) {
       return null;
     }
 
-    return this.tracks[++this.currentTrackIndex];
+    return this.items[++this.currentIndex];
   };
 
-  public previousTrack(): Track | null {
-    if (this.currentTrackIndex === 0) {
+  public previousItem(): T | null {
+    if (this.currentIndex === 0) {
       return null;
     }
 
-    if (this.tracks.length === 0) {
+    if (this.items.length === 0) {
       return null;
     }
 
-    return this.tracks[--this.currentTrackIndex];
+    return this.items[--this.currentIndex];
   };
 
-  public jumpToTrack(trackIndex: number): Track | null {
-    if (trackIndex < 0 || trackIndex >= this.tracks.length) {
+  public jumpToItem(itemIndex: number): T | null {
+    if (itemIndex < 0 || itemIndex >= this.items.length) {
       return null;
     }
 
-    this.currentTrackIndex = trackIndex;
+    this.currentIndex = itemIndex;
 
-    return this.getCurrentTrack();
+    return this.getCurrentItem();
   };
 
-  public pruneTracks(tailCount = 0): void {
-    if (tailCount > this.getPreviousTracks().length) {
-      tailCount = this.getPreviousTracks().length;
+  public pruneItems(tailCount = 0): void {
+    if (tailCount > this.getPreviousItems().length) {
+      tailCount = this.getPreviousItems().length;
     }
 
-    this.tracks = this.tracks.slice(this.currentTrackIndex - tailCount);
-    this.currentTrackIndex = tailCount;
+    this.items = this.items.slice(this.currentIndex - tailCount);
+    this.currentIndex = tailCount;
   };
 
-  public clearUpcomingTracks(): void {
-    this.tracks = this.tracks.slice(0, this.currentTrackIndex + 1);
+  public clearUpcomingItems(): void {
+    this.items = this.items.slice(0, this.currentIndex + 1);
   };
 
   public clearAll(): void {
-    this.tracks = [];
-    this.currentTrackIndex = 0;
+    this.items = [];
+    this.currentIndex = 0;
   };
 }
