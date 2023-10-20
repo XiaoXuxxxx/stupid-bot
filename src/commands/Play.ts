@@ -67,7 +67,7 @@ export default class Play implements Commandable {
 
     request.react('⌛');
     await soundBlaster.joinChannel(channel);
-    await soundBlaster.playOrQueue(...tracks);
+    await soundBlaster.queueAndPlay(...tracks);
 
     request.react('👍');
 

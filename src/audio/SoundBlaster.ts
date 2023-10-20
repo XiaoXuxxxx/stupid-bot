@@ -15,22 +15,25 @@ import {
 import { VoiceBasedChannel } from 'discord.js';
 
 export default class SoundBlaster {
-  private audioPlayer: AudioPlayer;
+  private readonly audioPlayer: AudioPlayer;
+  private readonly queue: Queue<Track>;
   private readonly guildId: string;
-  private queue: Queue<Track>;
+  private readonly timeoutInMS: number;
+
   private isPlaying = false;
+
   private nodeTimeout: NodeJS.Timeout | null = null;
-  private timeoutInMS: number;
   private lastMessage: DiscordRequest | null = null;
 
   public constructor(
     guildId: string,
     timeoutInMS: number
   ) {
+    this.audioPlayer = createAudioPlayer();
+    this.queue = new Queue();
     this.guildId = guildId;
     this.timeoutInMS = timeoutInMS;
-    this.queue = new Queue();
-    this.audioPlayer = createAudioPlayer();
+
     this.audioPlayer.on(AudioPlayerStatus.Idle, () => this.onIdle());
     this.countdownToTerminate();
   }
@@ -46,8 +49,6 @@ export default class SoundBlaster {
   public async joinChannel(
     voiceChanel: VoiceBasedChannel
   ): Promise<VoiceConnection> {
-    const guild = voiceChanel.guild;
-
     let connection = getVoiceConnection(voiceChanel.guild.id);
 
     if (
@@ -56,15 +57,15 @@ export default class SoundBlaster {
     ) {
       connection = joinVoiceChannel({
         channelId: voiceChanel.id,
-        guildId: guild.id,
-        adapterCreator: guild.voiceAdapterCreator
+        guildId: voiceChanel.guild.id,
+        adapterCreator: voiceChanel.guild.voiceAdapterCreator
       });
     }
 
     return connection;
   }
 
-  public async playOrQueue(...tracks: Track[]) {
+  public async queueAndPlay(...tracks: Track[]) {
     this.queue.addItems(...tracks);
 
     if (this.queue.getUpcomingItems().length === 0) {
@@ -90,33 +91,11 @@ export default class SoundBlaster {
     this.isPlaying = true;
   }
 
-  public async playTrack(track: Track) {
-    this.lastMessage = track.getRequest();
-    const resource = await track.getAudioResource();
-    if (!resource) {
-      this.isPlaying = false;
-      return;
-    }
-    this.audioPlayer.play(resource);
-    const voiceConnection = getVoiceConnection(this.guildId);
-    if (!voiceConnection) {
-      this.isPlaying = false;
-      return;
-    }
-    voiceConnection.subscribe(this.audioPlayer);
-    this.alertPlaying();
-    this.isPlaying = true;
-
-    if (this.nodeTimeout) {
-      clearTimeout(this.nodeTimeout);
-      this.nodeTimeout = null;
-    }
-  }
-
   public async jumpToTrack(index: number) {
     const track = this.queue.jumpToItem(
       this.queue.getCurrentIndex() + index
     );
+
     if (!track) {
       this.isPlaying = false;
       return;
@@ -126,47 +105,40 @@ export default class SoundBlaster {
     this.isPlaying = true;
   }
 
-  public async getQueueText(): Promise<string> {
-    const previousTracks = this.queue.getPreviousItems();
-    const currentTrack = this.queue.getCurrentItem();
-    const upComingTracks = this.queue.getUpcomingItems();
-
-    let text = '';
-
-    if (previousTracks.length > 0) {
-      text += 'Previous tracks:\n';
-      text += previousTracks
-        .map(
-          (track, index) =>
-            `\`${index - previousTracks.length}\` <${track.getRawUrl()}>`
-        )
-        .join('\n');
-      text += '\n\n';
-    }
-
-    if (currentTrack) {
-      text += `\`0\` <${currentTrack.getRawUrl()}>  \`[⬅ now playing]\`\n\n`;
-    }
-
-    if (upComingTracks.length > 0) {
-      text += 'Upcoming tracks:\n';
-      text += upComingTracks
-        .map((track, index) => `\`${index + 1}\` <${track.getRawUrl()}>`)
-        .join('\n');
-    }
-
-    if (text === '') {
-      text = 'Queue is empty';
-    }
-
-    return text;
-  }
-
   public terminate() {
     this.queue.clearAll();
     this.audioPlayer.stop(true);
-    getVoiceConnection(this.guildId)?.destroy();
     this.isPlaying = false;
+
+    getVoiceConnection(this.guildId)?.destroy();
+  }
+
+  private async playTrack(track: Track) {
+    this.lastMessage = track.getRequest();
+
+    const resource = await track.getAudioResource();
+    if (!resource) {
+      this.isPlaying = false;
+      return;
+    }
+
+    this.audioPlayer.play(resource);
+
+    const voiceConnection = getVoiceConnection(this.guildId);
+    if (!voiceConnection) {
+      this.isPlaying = false;
+      return;
+    }
+
+    voiceConnection.subscribe(this.audioPlayer);
+    this.alertPlaying();
+
+    this.isPlaying = true;
+
+    if (this.nodeTimeout) {
+      clearTimeout(this.nodeTimeout);
+      this.nodeTimeout = null;
+    }
   }
 
   private async onIdle() {
@@ -195,8 +167,9 @@ export default class SoundBlaster {
 
   private timeoutAction() {
     this.terminate();
-    const embed = new IdleDisconnectEmbed();
+
     try {
+      const embed = new IdleDisconnectEmbed();
       this.lastMessage?.send({ embeds: [embed] });
     } catch (error) {
       console.log(error);
