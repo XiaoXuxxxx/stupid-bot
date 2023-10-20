@@ -1,8 +1,8 @@
 import Queue from '@/src/audio/Queue';
-import SoundBlasterActioner from '@/src/audio/SoundBlasterActioner';
 import Track from '@/src/audio/Track';
 import { DiscordRequest } from '@/src/discord_request/base/DiscordRequest';
 import IdleDisconnectEmbed from '@/src/embed/IdleDisconnectEmbed';
+import { PlaySongEmbed } from '@/src/embed/PlaySongEmbed';
 import {
   AudioPlayer,
   AudioPlayerStatus,
@@ -17,7 +17,6 @@ import { VoiceBasedChannel } from 'discord.js';
 export default class SoundBlaster {
   private audioPlayer: AudioPlayer;
   private readonly guildId: string;
-  private readonly soundBlasterActioner: SoundBlasterActioner;
   private queue: Queue<Track>;
   private isPlaying = false;
   private nodeTimeout: NodeJS.Timeout | null = null;
@@ -26,11 +25,9 @@ export default class SoundBlaster {
 
   public constructor(
     guildId: string,
-    soundBlasterActioner: SoundBlasterActioner,
     timeoutInMS: number
   ) {
     this.guildId = guildId;
-    this.soundBlasterActioner = soundBlasterActioner.loadSoundBlaster(this);
     this.timeoutInMS = timeoutInMS;
     this.queue = new Queue();
     this.audioPlayer = createAudioPlayer();
@@ -107,7 +104,7 @@ export default class SoundBlaster {
       return;
     }
     voiceConnection.subscribe(this.audioPlayer);
-    this.soundBlasterActioner.alertPlaying();
+    this.alertPlaying();
     this.isPlaying = true;
 
     if (this.nodeTimeout) {
@@ -204,5 +201,20 @@ export default class SoundBlaster {
     } catch (error) {
       console.log(error);
     }
+  }
+
+  private async alertPlaying(): Promise<void> {
+    const currentTrack = this.getQueue().getCurrentItem();
+
+    if (!currentTrack) return;
+
+    const trackInfo = await currentTrack.getTrackInfo();
+    const message = currentTrack.getRequest();
+
+    if (!trackInfo || !message) return;
+
+    const embed = new PlaySongEmbed(trackInfo, message);
+
+    currentTrack.getRequest().send({ embeds: [embed] });
   }
 }
