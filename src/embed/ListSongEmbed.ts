@@ -3,17 +3,17 @@ import Track from '@/src/audio/Track';
 import { EmbedBuilder } from 'discord.js';
 
 export class ListSongEmbed extends EmbedBuilder {
-  private readonly queue: Queue;
+  private readonly queue: Queue<Track>;
 
-  public constructor(queue: Queue) {
+  public constructor(queue: Queue<Track>) {
     super();
     this.queue = queue;
   }
 
   public async build() {
-    const currentTrack = this.queue.getCurrentTrack();
-    const previousTracks = this.queue.getPreviousTracks();
-    const upcomingTracks = this.queue.getUpcomingTracks();
+    const currentTrack = this.queue.getCurrentItem();
+    const previousTracks = this.queue.getPreviousItems();
+    const upcomingTracks = this.queue.getUpcomingItems();
 
     this.setColor('#7F00FF');
     this.setTitle('Queue');
@@ -39,52 +39,51 @@ export class ListSongEmbed extends EmbedBuilder {
     upcomingTracks: Track[]
   ) {
     let txt = '';
-    txt += `previous tracks: ${previousTracks.length}\n`;
+    txt = txt.concat(`previous tracks: ${previousTracks.length}\n`);
 
-    const shownPreviousTracks = previousTracks.slice(
-      Math.max(previousTracks.length - 5, 0)
-    );
+    const previousShownAmount = Math.max(previousTracks.length - 5, 0)
+    const shownPreviousTracks = previousTracks.slice(previousShownAmount);
+
     for (const previousTrack of shownPreviousTracks) {
-      const desc = await this.trackToQueueTxt(
-        previousTrack,
-        previousTracks.indexOf(previousTrack) - previousTracks.length
-      );
-      txt += desc + '\n';
+      const index = previousTracks.indexOf(previousTrack) - previousTracks.length;
+      const desc = await this.trackToQueueText(previousTrack, index);
+
+      txt = txt.concat(desc + '\n');
     }
 
-    txt += '\n';
-    txt += await this.trackToQueueTxt(currentTrack, 0);
-    txt += '  `now playing`\n';
+    txt = txt.concat('\n');
+    txt = txt.concat(await this.trackToQueueText(currentTrack, 0));
+    txt = txt.concat('  `now playing`\n');
 
-    txt += '\n';
-    txt += `upcoming tracks: ${upcomingTracks.length}\n`;
+    txt = txt.concat('\n');
+    txt = txt.concat(`upcoming tracks: ${upcomingTracks.length}\n`);
 
     const shownUpcomingTracks = upcomingTracks.slice(0, 10);
     for (const upcomingTrack of shownUpcomingTracks) {
-      const desc = await this.trackToQueueTxt(
-        upcomingTrack,
-        upcomingTracks.indexOf(upcomingTrack) + 1
-      );
-      txt += desc + '\n';
+      const index = upcomingTracks.indexOf(upcomingTrack) + 1;
+      const desc = await this.trackToQueueText(upcomingTrack, index);
+
+      txt = txt.concat(desc + '\n');
     }
 
     return txt;
   }
 
-  private async trackToQueueTxt(track: Track, index: number) {
+  private async trackToQueueText(track: Track, index: number) {
     const trackInfo = await track.getTrackInfo();
-    const messagex = track.getRequest();
-    const desc = `\`${index}\` \`[${this.secondToTime(
-      trackInfo?.duration ?? 0
-    )}]\` [${trackInfo?.title.substring(0, 20)}](${
-      trackInfo?.url
-    }) ${messagex.getAuthor()}`;
 
-    return desc;
+    const time = this.secondToTime(trackInfo?.duration ?? 0)
+    const title = trackInfo?.title.substring(0, 20);
+    const url = trackInfo?.url;
+
+    const author = track.getRequest().getAuthor();
+
+    const text = `\`${index}\` \`[${time}]\` [${title}](${url}) ${author}`;
+
+    return text;
   }
 
   private secondToTime(second: number) {
-    // mm:ss
     const min = Math.floor(second / 60);
     const sec = second % 60;
 

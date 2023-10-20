@@ -29,8 +29,8 @@ export default class ClearAll implements Commandable {
 
     const soundBlaster = this.soundBlasterManager.getSoundBlaster(guild.id);
 
-    soundBlaster.getQueue().clearUpcomingTracks();
-    soundBlaster.getQueue().pruneTracks();
+    soundBlaster.getQueue().clearUpcomingItems();
+    soundBlaster.getQueue().pruneItems();
 
     request.reply('cleared the upcoming queue and previous played song!');
     request.react('👍');

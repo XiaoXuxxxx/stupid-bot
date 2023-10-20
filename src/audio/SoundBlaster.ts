@@ -1,8 +1,8 @@
 import Queue from '@/src/audio/Queue';
-import SoundBlasterActioner from '@/src/audio/SoundBlasterActioner';
 import Track from '@/src/audio/Track';
 import { DiscordRequest } from '@/src/discord_request/base/DiscordRequest';
 import IdleDisconnectEmbed from '@/src/embed/IdleDisconnectEmbed';
+import { PlaySongEmbed } from '@/src/embed/PlaySongEmbed';
 import {
   AudioPlayer,
   AudioPlayerStatus,
@@ -15,25 +15,23 @@ import {
 import { VoiceBasedChannel } from 'discord.js';
 
 export default class SoundBlaster {
-  private audioPlayer: AudioPlayer;
+  private readonly audioPlayer: AudioPlayer;
+  private readonly queue: Queue<Track>;
   private readonly guildId: string;
-  private readonly soundBlasterActioner: SoundBlasterActioner;
-  private queue: Queue;
-  private isPlaying = false;
+  private readonly timeoutInMS: number;
+
   private nodeTimeout: NodeJS.Timeout | null = null;
-  private timeoutInMS: number;
   private lastMessage: DiscordRequest | null = null;
 
   public constructor(
     guildId: string,
-    soundBlasterActioner: SoundBlasterActioner,
     timeoutInMS: number
   ) {
-    this.guildId = guildId;
-    this.soundBlasterActioner = soundBlasterActioner.loadSoundBlaster(this);
-    this.timeoutInMS = timeoutInMS;
-    this.queue = new Queue();
     this.audioPlayer = createAudioPlayer();
+    this.queue = new Queue();
+    this.guildId = guildId;
+    this.timeoutInMS = timeoutInMS;
+
     this.audioPlayer.on(AudioPlayerStatus.Idle, () => this.onIdle());
     this.countdownToTerminate();
   }
@@ -42,15 +40,13 @@ export default class SoundBlaster {
     return this.audioPlayer;
   }
 
-  public getQueue(): Queue {
+  public getQueue(): Queue<Track> {
     return this.queue;
   }
 
   public async joinChannel(
     voiceChanel: VoiceBasedChannel
   ): Promise<VoiceConnection> {
-    const guild = voiceChanel.guild;
-
     let connection = getVoiceConnection(voiceChanel.guild.id);
 
     if (
@@ -59,56 +55,77 @@ export default class SoundBlaster {
     ) {
       connection = joinVoiceChannel({
         channelId: voiceChanel.id,
-        guildId: guild.id,
-        adapterCreator: guild.voiceAdapterCreator
+        guildId: voiceChanel.guild.id,
+        adapterCreator: voiceChanel.guild.voiceAdapterCreator
       });
     }
 
     return connection;
   }
 
-  public async playOrQueue(...tracks: Track[]) {
-    this.queue.addTracks(...tracks);
+  public async queueAndPlay(...tracks: Track[]) {
+    this.queue.addItems(...tracks);
 
-    if (this.queue.getUpcomingTracks().length === 0) {
+    if (this.queue.getUpcomingItems().length === 0) {
       this.playTrack(tracks[0]);
-      this.isPlaying = true;
       return;
     }
 
-    if (!this.isPlaying) {
+    if (this.audioPlayer.state.status === AudioPlayerStatus.Idle) {
       this.playNextTrack();
+      return;
     }
   }
 
   public async playNextTrack() {
-    const track = this.queue.nextTrack();
+    const track = this.queue.nextItem();
     if (!track) {
       this.audioPlayer.stop();
-      this.isPlaying = false;
       return;
     }
 
     this.playTrack(track);
-    this.isPlaying = true;
   }
 
-  public async playTrack(track: Track) {
+  public async jumpToTrack(index: number) {
+    const track = this.queue.jumpToItem(
+      this.queue.getCurrentIndex() + index
+    );
+
+    if (!track) {
+      this.audioPlayer.stop();
+      return;
+    }
+
+    this.playTrack(track);
+  }
+
+  public terminate() {
+    this.queue.clearAll();
+
+    this.audioPlayer.stop();
+
+    getVoiceConnection(this.guildId)?.destroy();
+  }
+
+  private async playTrack(track: Track) {
     this.lastMessage = track.getRequest();
+
     const resource = await track.getAudioResource();
     if (!resource) {
-      this.isPlaying = false;
+      this.audioPlayer.stop();
       return;
     }
+
     this.audioPlayer.play(resource);
+
     const voiceConnection = getVoiceConnection(this.guildId);
     if (!voiceConnection) {
-      this.isPlaying = false;
       return;
     }
+
     voiceConnection.subscribe(this.audioPlayer);
-    this.soundBlasterActioner.alertPlaying();
-    this.isPlaying = true;
+    this.alertPlaying();
 
     if (this.nodeTimeout) {
       clearTimeout(this.nodeTimeout);
@@ -116,68 +133,12 @@ export default class SoundBlaster {
     }
   }
 
-  public async jumpToTrack(index: number) {
-    const track = this.queue.jumpToTrack(
-      this.queue.getCurrentTrackIndex() + index
-    );
-    if (!track) {
-      this.isPlaying = false;
-      return;
-    }
-
-    this.playTrack(track);
-    this.isPlaying = true;
-  }
-
-  public async getQueueText(): Promise<string> {
-    const previousTracks = this.queue.getPreviousTracks();
-    const currentTrack = this.queue.getCurrentTrack();
-    const upComingTracks = this.queue.getUpcomingTracks();
-
-    let text = '';
-
-    if (previousTracks.length > 0) {
-      text += 'Previous tracks:\n';
-      text += previousTracks
-        .map(
-          (track, index) =>
-            `\`${index - previousTracks.length}\` <${track.getRawUrl()}>`
-        )
-        .join('\n');
-      text += '\n\n';
-    }
-
-    if (currentTrack) {
-      text += `\`0\` <${currentTrack.getRawUrl()}>  \`[⬅ now playing]\`\n\n`;
-    }
-
-    if (upComingTracks.length > 0) {
-      text += 'Upcoming tracks:\n';
-      text += upComingTracks
-        .map((track, index) => `\`${index + 1}\` <${track.getRawUrl()}>`)
-        .join('\n');
-    }
-
-    if (text === '') {
-      text = 'Queue is empty';
-    }
-
-    return text;
-  }
-
-  public terminate() {
-    this.queue.clearAll();
-    this.audioPlayer.stop(true);
-    getVoiceConnection(this.guildId)?.destroy();
-    this.isPlaying = false;
-  }
-
   private async onIdle() {
-    this.isPlaying = false;
+    this.audioPlayer.stop();
     this.playNextTrack();
 
     if (
-      this.queue.getUpcomingTracks().length === 0 &&
+      this.queue.getUpcomingItems().length === 0 &&
       this.audioPlayer.state.status === AudioPlayerStatus.Idle
     ) {
       this.countdownToTerminate();
@@ -198,11 +159,27 @@ export default class SoundBlaster {
 
   private timeoutAction() {
     this.terminate();
-    const embed = new IdleDisconnectEmbed();
+
     try {
+      const embed = new IdleDisconnectEmbed();
       this.lastMessage?.send({ embeds: [embed] });
     } catch (error) {
       console.log(error);
     }
+  }
+
+  private async alertPlaying(): Promise<void> {
+    const currentTrack = this.getQueue().getCurrentItem();
+
+    if (!currentTrack) return;
+
+    const trackInfo = await currentTrack.getTrackInfo();
+    const message = currentTrack.getRequest();
+
+    if (!trackInfo || !message) return;
+
+    const embed = new PlaySongEmbed(trackInfo, message);
+
+    currentTrack.getRequest().send({ embeds: [embed] });
   }
 }

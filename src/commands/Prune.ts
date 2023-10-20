@@ -18,7 +18,6 @@ export default class Prune implements Commandable {
   }
 
   public async execute(request: DiscordRequest, args: string[]): Promise<void> {
-    console.log('hhhhhhhhhhhhh');
     const channel = request.getVoiceChannel();
     const guild = request.getSenderGuild();
 
@@ -30,7 +29,7 @@ export default class Prune implements Commandable {
 
     const soundBlaster = this.soundBlasterManager.getSoundBlaster(guild.id);
 
-    soundBlaster.getQueue().pruneTracks();
+    soundBlaster.getQueue().pruneItems();
 
     request.reply('cleared the previous played tracks');
     request.react('👍');

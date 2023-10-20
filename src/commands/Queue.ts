@@ -31,7 +31,7 @@ export default class Queue implements Commandable {
 
     const queue = this.soundBlasterManager.getSoundBlaster(guild.id).getQueue();
 
-    const currentTrack = queue.getCurrentTrack();
+    const currentTrack = queue.getCurrentItem();
 
     if (!currentTrack) {
       request.reply('no song is playing');

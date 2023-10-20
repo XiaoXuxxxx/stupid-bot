@@ -29,7 +29,7 @@ export default class Clear implements Commandable {
 
     const soundBlaster = this.soundBlasterManager.getSoundBlaster(guild.id);
 
-    soundBlaster.getQueue().clearUpcomingTracks();
+    soundBlaster.getQueue().clearUpcomingItems();
 
     request.reply('cleared the upcoming queue!');
     request.react('👍');
