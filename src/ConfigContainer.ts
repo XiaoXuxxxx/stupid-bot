@@ -33,7 +33,6 @@ export class ConfigContainer {
         this.timeoutInMS = timeout;
       }
     } catch (e) {
-      console.log(e);
       console.log('[CONFIG] no config file, use default config');
     }
   }

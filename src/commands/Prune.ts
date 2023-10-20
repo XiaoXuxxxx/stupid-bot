@@ -18,7 +18,6 @@ export default class Prune implements Commandable {
   }
 
   public async execute(request: DiscordRequest, args: string[]): Promise<void> {
-    console.log('hhhhhhhhhhhhh');
     const channel = request.getVoiceChannel();
     const guild = request.getSenderGuild();
 
