@@ -11,14 +11,6 @@ export type TrackInfo = {
   source:
   | 'youtube'
   | 'soundcloud'
-  | 'spotify'
-  | 'twitch'
-  | 'vimeo'
-  | 'mixer'
-  | 'facebook'
-  | 'http'
-  | 'local'
-  | 'unknown';
 };
 
 export default interface ResourceLoadable {
