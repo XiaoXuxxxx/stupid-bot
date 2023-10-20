@@ -58,6 +58,10 @@ export default class SoundBlaster {
         guildId: voiceChanel.guild.id,
         adapterCreator: voiceChanel.guild.voiceAdapterCreator
       });
+
+      connection.on(VoiceConnectionStatus.Disconnected, () => {
+        this.terminate();
+      });
     }
 
     return connection;
@@ -104,6 +108,11 @@ export default class SoundBlaster {
     this.queue.clearAll();
 
     this.audioPlayer.stop();
+
+    if (this.nodeTimeout) {
+      clearTimeout(this.nodeTimeout);
+      this.nodeTimeout = null;
+    }
 
     getVoiceConnection(this.guildId)?.destroy();
   }
