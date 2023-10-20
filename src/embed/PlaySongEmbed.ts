@@ -18,13 +18,7 @@ export class PlaySongEmbed extends EmbedBuilder {
   private build(): void {
     this.setColor('#FFBF00');
     this.setTitle('Now playing...');
-    this.setDescription(
-      `\`[${this.secondToTime(this.trackInfo.duration)}]\`[${
-        this.trackInfo.title
-      }](${this.trackInfo.url})\nrequested by ${this.trackRequest
-        .getAuthor()
-        .toString()}`
-    );
+    this.setDescription(this.getEmbedDescription());
   }
 
   private secondToTime(second: number): string {
@@ -32,5 +26,16 @@ export class PlaySongEmbed extends EmbedBuilder {
     const seconds = second % 60;
 
     return `${minutes}:${seconds}`;
+  }
+
+  private getEmbedDescription(): string {
+    const time = this.secondToTime(this.trackInfo.duration)
+    const title = this.trackInfo.title
+    const url = this.trackInfo.url
+    const author = this.trackRequest.getAuthor().toString();
+
+    const description = `\`[${time}]\`[${title}](${url})\nrequested by ${author}`;
+
+    return description;
   }
 }
