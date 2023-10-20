@@ -20,8 +20,6 @@ export default class SoundBlaster {
   private readonly guildId: string;
   private readonly timeoutInMS: number;
 
-  private isPlaying = false;
-
   private nodeTimeout: NodeJS.Timeout | null = null;
   private lastMessage: DiscordRequest | null = null;
 
@@ -70,12 +68,12 @@ export default class SoundBlaster {
 
     if (this.queue.getUpcomingItems().length === 0) {
       this.playTrack(tracks[0]);
-      this.isPlaying = true;
       return;
     }
 
-    if (!this.isPlaying) {
+    if (this.audioPlayer.state.status === AudioPlayerStatus.Idle) {
       this.playNextTrack();
+      return;
     }
   }
 
@@ -83,12 +81,10 @@ export default class SoundBlaster {
     const track = this.queue.nextItem();
     if (!track) {
       this.audioPlayer.stop();
-      this.isPlaying = false;
       return;
     }
 
     this.playTrack(track);
-    this.isPlaying = true;
   }
 
   public async jumpToTrack(index: number) {
@@ -97,18 +93,17 @@ export default class SoundBlaster {
     );
 
     if (!track) {
-      this.isPlaying = false;
+      this.audioPlayer.stop();
       return;
     }
 
     this.playTrack(track);
-    this.isPlaying = true;
   }
 
   public terminate() {
     this.queue.clearAll();
-    this.audioPlayer.stop(true);
-    this.isPlaying = false;
+
+    this.audioPlayer.stop();
 
     getVoiceConnection(this.guildId)?.destroy();
   }
@@ -118,7 +113,7 @@ export default class SoundBlaster {
 
     const resource = await track.getAudioResource();
     if (!resource) {
-      this.isPlaying = false;
+      this.audioPlayer.stop();
       return;
     }
 
@@ -126,14 +121,11 @@ export default class SoundBlaster {
 
     const voiceConnection = getVoiceConnection(this.guildId);
     if (!voiceConnection) {
-      this.isPlaying = false;
       return;
     }
 
     voiceConnection.subscribe(this.audioPlayer);
     this.alertPlaying();
-
-    this.isPlaying = true;
 
     if (this.nodeTimeout) {
       clearTimeout(this.nodeTimeout);
@@ -142,7 +134,7 @@ export default class SoundBlaster {
   }
 
   private async onIdle() {
-    this.isPlaying = false;
+    this.audioPlayer.stop();
     this.playNextTrack();
 
     if (
