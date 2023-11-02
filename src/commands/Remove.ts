@@ -43,6 +43,16 @@ export default class Remove implements Commandable {
         const from = parseInt(args[0], 10);
         const to = args[1] !== undefined ? parseInt(args[1], 10) : from;
 
+        if (isNaN(from) || isNaN(to)) {
+            request.reply('invalid position number');
+            return;
+        }
+
+        if (from === 0 || to === 0) {
+            request.reply('cannot remove the current song');
+            return;
+        }
+
         if (Math.sign(from) !== Math.sign(to)) {
             request.reply('position number must have the same sign');
             return;
