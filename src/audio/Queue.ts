@@ -59,6 +59,27 @@ export default class Queue<T> {
     return this.getCurrentItem();
   };
 
+  public removeItem(fromPosition: number, amount: number): number {
+    const fromIndex = this.currentIndex + fromPosition;
+    if (fromIndex < 0 || fromIndex >= this.items.length) {
+      return 0;
+    }
+
+    const toIndex = fromIndex + amount;
+    if (toIndex < 0 || toIndex > this.items.length) {
+      return 0;
+    }
+
+    const isCurrentItemWillAffected = this.currentIndex >= fromIndex && this.currentIndex <= toIndex;
+    if (isCurrentItemWillAffected) {
+      this.currentIndex = fromIndex;
+    }
+
+    this.items.splice(fromIndex, amount);
+
+    return amount;
+  }
+
   public pruneItems(tailCount = 0): void {
     if (tailCount > this.getPreviousItems().length) {
       tailCount = this.getPreviousItems().length;

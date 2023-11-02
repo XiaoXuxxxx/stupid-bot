@@ -12,6 +12,7 @@ import Ping from '@/src/commands/Ping';
 import Play from '@/src/commands/Play';
 import Prune from '@/src/commands/Prune';
 import Queue from '@/src/commands/Queue';
+import Remove from '@/src/commands/Remove';
 import Skip from '@/src/commands/Skip';
 import { InteractionDiscordRequest } from '@/src/discord_request/InteractionDiscordRequest';
 import { MessageDiscordRequest } from '@/src/discord_request/MessageDiscordRequest';
@@ -70,7 +71,8 @@ export default class StupidBot {
       new Jump(soundBlasterManager),
       new Clear(soundBlasterManager),
       new ClearAll(soundBlasterManager),
-      new Prune(soundBlasterManager)
+      new Prune(soundBlasterManager),
+      new Remove(soundBlasterManager),
     ]);
 
     const help = new Help(this.commandByAlias, this.config.prefix);

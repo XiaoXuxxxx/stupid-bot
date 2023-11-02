@@ -102,6 +102,10 @@ export default class SoundBlaster {
     return true;
   }
 
+  public async removeTracks(fromPosition: number, amount: number): Promise<number> {
+    return this.queue.removeItem(fromPosition, amount);
+  }
+
   public terminate() {
     this.queue.clearAll();
 
