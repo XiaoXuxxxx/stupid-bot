@@ -44,8 +44,11 @@ export default class Jump implements Commandable {
 
     const soundBlaster = this.soundBlasterManager.getSoundBlaster(guild.id);
 
-    await soundBlaster.jumpToTrack(index);
+    const isSuccess = await soundBlaster.jumpToTrack(index);
 
-    request.react('👍');
+    const message = isSuccess ? `jump to the ${index} song` : 'index out of bound :('
+
+    request.reply(message);
+    request.react(isSuccess ? '👍' : '👎');
   }
 }

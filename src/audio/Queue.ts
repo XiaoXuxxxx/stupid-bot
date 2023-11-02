@@ -47,12 +47,14 @@ export default class Queue<T> {
     return this.items[--this.currentIndex];
   };
 
-  public jumpToItem(itemIndex: number): T | null {
-    if (itemIndex < 0 || itemIndex >= this.items.length) {
+  public jumpToItem(itemPosition: number): T | null {
+    const index = this.getCurrentIndex() + itemPosition;
+
+    if (index < 0 || index >= this.items.length) {
       return null;
     }
 
-    this.currentIndex = itemIndex;
+    this.currentIndex = index;
 
     return this.getCurrentItem();
   };

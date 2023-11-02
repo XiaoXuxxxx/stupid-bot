@@ -91,17 +91,15 @@ export default class SoundBlaster {
     this.playTrack(track);
   }
 
-  public async jumpToTrack(index: number) {
-    const track = this.queue.jumpToItem(
-      this.queue.getCurrentIndex() + index
-    );
+  public async jumpToTrack(position: number): Promise<boolean> {
+    const track = this.queue.jumpToItem(position);
 
     if (!track) {
-      this.audioPlayer.stop();
-      return;
+      return false;
     }
 
     this.playTrack(track);
+    return true;
   }
 
   public terminate() {
