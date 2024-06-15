@@ -1,7 +1,7 @@
 import { DiscordRequest } from '@/src/discord_request/base/DiscordRequest';
 import {
   CommandInteractionOptionResolver,
-  SlashCommandBuilder
+  SlashCommandOptionsOnlyBuilder
 } from 'discord.js';
 
 export default interface Commandable {
@@ -9,10 +9,7 @@ export default interface Commandable {
   readonly aliases: string[];
   readonly description: string;
 
-  readonly slashCommand: Omit<
-    SlashCommandBuilder,
-    'addSubcommand' | 'addSubcommandGroup'
-  >;
+  readonly slashCommand: SlashCommandOptionsOnlyBuilder
 
   execute(
     request: DiscordRequest,
