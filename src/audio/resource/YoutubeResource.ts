@@ -48,7 +48,11 @@ export default class YoutubeResource implements ResourceLoadable {
     let stream;
 
     try {
-      stream = ytdl(this.rawUrl, { filter: "audioonly" });
+      stream = ytdl(this.rawUrl, {
+        filter: "audioonly",
+        liveBuffer: 2000,
+        highWaterMark: 1 << 25,
+      });
     } catch (error) {
       console.error(error);
       return;
