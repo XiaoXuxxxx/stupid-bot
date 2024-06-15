@@ -1,8 +1,9 @@
 import ResourceLoadable, {
-  TrackInfo
-} from '@/src/audio/resource/ResourceLoadable';
-import { AudioResource, createAudioResource } from '@discordjs/voice';
-import play, { YouTubeVideo } from 'play-dl';
+  TrackInfo,
+} from "@/src/audio/resource/ResourceLoadable";
+import { AudioResource, createAudioResource } from "@discordjs/voice";
+import play, { YouTubeVideo } from "play-dl";
+import ytdl from "ytdl-core";
 
 export default class YoutubeResource implements ResourceLoadable {
   private readonly rawUrl: string;
@@ -22,14 +23,14 @@ export default class YoutubeResource implements ResourceLoadable {
     }
 
     const trackInfo: TrackInfo = {
-      title: video?.title ?? '<UNKNOWN>',
+      title: video?.title ?? "<UNKNOWN>",
       duration: video?.durationInSec ?? 0,
       url: video?.url ?? this.rawUrl,
       thumbnailUrl: video?.thumbnails[0].url ?? this.rawUrl,
       channelIconUrl: video?.channel?.iconURL({ size: 128 }),
-      channelName: video?.channel?.name ?? 'Unknown',
+      channelName: video?.channel?.name ?? "Unknown",
       channelUrl: video?.channel?.url,
-      source: 'youtube'
+      source: "youtube",
     };
 
     this.trackInfo = trackInfo;
@@ -47,7 +48,7 @@ export default class YoutubeResource implements ResourceLoadable {
     let stream;
 
     try {
-      stream = await play.stream(this.rawUrl);
+      stream = ytdl(this.rawUrl, { filter: "audioonly" });
     } catch (error) {
       console.error(error);
       return;
@@ -57,9 +58,8 @@ export default class YoutubeResource implements ResourceLoadable {
       return undefined;
     }
 
-    const resource = createAudioResource(stream.stream, {
-      inputType: stream.type,
-      inlineVolume: true
+    const resource = createAudioResource(stream, {
+      inlineVolume: true,
     });
 
     return resource;
