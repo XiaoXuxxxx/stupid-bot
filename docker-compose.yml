@@ -1,0 +1,11 @@
+version: '3'
+
+services:
+  stupid-bot:
+    image: stupid-bot
+    container_name: stupid-bot
+    volumes:
+      - ./config.yaml:/app/config.yaml:ro
+    env_file:
+      - .env
+    restart: unless-stopped

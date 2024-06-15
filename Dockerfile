@@ -32,6 +32,10 @@ RUN pnpm build
 
 FROM node:18-alpine AS runner
 
+RUN apk update
+RUN apk upgrade
+RUN apk add --no-cache ffmpeg
+
 WORKDIR /app
 COPY --from=prod-deps ./app/node_modules ./node_modules
 COPY --from=builder ./app/dist ./dist
