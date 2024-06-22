@@ -1,8 +1,9 @@
+import { SlashCommandBuilder } from 'discord.js';
+
 import SoundBlasterManager from '@/src/audio/SoundBlasterManager';
 import Commandable from '@/src/commands/Commandable';
 import { DiscordRequest } from '@/src/discord_request/base/DiscordRequest';
 import DisconnectEmbed from '@/src/embed/DisconnectEmbed';
-import { SlashCommandBuilder } from 'discord.js';
 
 export default class Disconnect implements Commandable {
   public name = 'disconnect';

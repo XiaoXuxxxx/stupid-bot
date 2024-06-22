@@ -1,10 +1,12 @@
+import { AudioResource, createAudioResource } from '@discordjs/voice';
+import { spawn } from 'child_process';
+import play, { YouTubeVideo } from 'play-dl';
+import { PassThrough } from 'stream';
+
 import ResourceLoadable, {
   TrackInfo,
-} from "@/src/audio/resource/ResourceLoadable";
-import { AudioResource, createAudioResource } from "@discordjs/voice";
-import { spawn } from "child_process";
-import play, { YouTubeVideo } from "play-dl";
-import { PassThrough } from "stream";
+} from '@/src/audio/resource/ResourceLoadable';
+
 export default class YoutubeResource implements ResourceLoadable {
   private readonly rawUrl: string;
   private readonly ytdlpPath: string;
@@ -25,14 +27,14 @@ export default class YoutubeResource implements ResourceLoadable {
     }
 
     const trackInfo: TrackInfo = {
-      title: video?.title ?? "<UNKNOWN>",
+      title: video?.title ?? '<UNKNOWN>',
       duration: video?.durationInSec ?? 0,
       url: video?.url ?? this.rawUrl,
       thumbnailUrl: video?.thumbnails[0].url ?? this.rawUrl,
       channelIconUrl: video?.channel?.iconURL({ size: 128 }),
-      channelName: video?.channel?.name ?? "Unknown",
+      channelName: video?.channel?.name ?? 'Unknown',
       channelUrl: video?.channel?.url,
-      source: "youtube",
+      source: 'youtube',
     };
 
     this.trackInfo = trackInfo;
@@ -53,7 +55,7 @@ export default class YoutubeResource implements ResourceLoadable {
       inlineVolume: true,
     });
 
-    const process = spawn(this.ytdlpPath, ["-o", "-", "-x", this.rawUrl]);
+    const process = spawn(this.ytdlpPath, ['-o', '-', '-x', this.rawUrl]);
 
     process.stdout.pipe(passThrough);
 

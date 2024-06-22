@@ -1,8 +1,9 @@
-import Track from "@/src/audio/Track";
-import GenericResource from "@/src/audio/resource/GenericResource";
-import YoutubeResource from "@/src/audio/resource/YoutubeResource";
-import { DiscordRequest } from "@/src/discord_request/base/DiscordRequest";
-import play from "play-dl";
+import play from 'play-dl';
+
+import Track from '@/src/audio/Track';
+import GenericResource from '@/src/audio/resource/GenericResource';
+import YoutubeResource from '@/src/audio/resource/YoutubeResource';
+import { DiscordRequest } from '@/src/discord_request/base/DiscordRequest';
 
 export default class TrackFactory {
   private readonly ytdlpPath: string;
@@ -12,28 +13,28 @@ export default class TrackFactory {
   }
   public async getTracks(
     str: string,
-    request: DiscordRequest
+    request: DiscordRequest,
   ): Promise<Track[]> {
     const type = await play.validate(str);
 
-    if (type === "search") {
+    if (type === 'search') {
       const url = await this.getUrlFromSearch(str);
       return [
         new Track(url, new YoutubeResource(url, this.ytdlpPath), request),
       ];
     }
 
-    if (type === "yt_video") {
+    if (type === 'yt_video') {
       return [
         new Track(str, new YoutubeResource(str, this.ytdlpPath), request),
       ];
     }
 
-    if (type === "yt_playlist") {
+    if (type === 'yt_playlist') {
       const urls = await this.getUrlsFromPlaylist(str);
       return urls.map(
         (url) =>
-          new Track(url, new YoutubeResource(url, this.ytdlpPath), request)
+          new Track(url, new YoutubeResource(url, this.ytdlpPath), request),
       );
     }
 
@@ -44,7 +45,7 @@ export default class TrackFactory {
     const info = await play.search(str, {
       limit: 1,
       source: {
-        youtube: "video",
+        youtube: 'video',
       },
     });
 

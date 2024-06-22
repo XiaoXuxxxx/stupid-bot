@@ -1,9 +1,10 @@
+import { AudioResource, createAudioResource } from '@discordjs/voice';
+import { spawn } from 'child_process';
+import { PassThrough } from 'stream';
+
 import ResourceLoadable, {
   TrackInfo,
-} from "@/src/audio/resource/ResourceLoadable";
-import { AudioResource, createAudioResource } from "@discordjs/voice";
-import { spawn } from "child_process";
-import { PassThrough } from "stream";
+} from '@/src/audio/resource/ResourceLoadable';
 
 export default class GenericResource implements ResourceLoadable {
   private readonly rawUrl: string;
@@ -23,7 +24,7 @@ export default class GenericResource implements ResourceLoadable {
       channelIconUrl: this.rawUrl,
       channelName: this.rawUrl,
       channelUrl: this.rawUrl,
-      source: "generic",
+      source: 'generic',
     };
   }
 
@@ -42,7 +43,7 @@ export default class GenericResource implements ResourceLoadable {
       inlineVolume: true,
     });
 
-    const process = spawn(this.ytdlpPath, ["-o", "-", "-x", this.rawUrl]);
+    const process = spawn(this.ytdlpPath, ['-o', '-', '-x', this.rawUrl]);
 
     process.stdout.pipe(passThrough);
 

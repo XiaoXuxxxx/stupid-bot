@@ -1,6 +1,7 @@
+import { EmbedBuilder } from 'discord.js';
+
 import { TrackInfo } from '@/src/audio/resource/ResourceLoadable';
 import { DiscordRequest } from '@/src/discord_request/base/DiscordRequest';
-import { EmbedBuilder } from 'discord.js';
 
 export class PlaySongEmbed extends EmbedBuilder {
   private readonly trackInfo: TrackInfo;
@@ -29,9 +30,9 @@ export class PlaySongEmbed extends EmbedBuilder {
   }
 
   private getEmbedDescription(): string {
-    const time = this.secondToTime(this.trackInfo.duration)
-    const title = this.trackInfo.title
-    const url = this.trackInfo.url
+    const time = this.secondToTime(this.trackInfo.duration);
+    const title = this.trackInfo.title;
+    const url = this.trackInfo.url;
     const author = this.trackRequest.getAuthor().toString();
 
     const description = `\`[${time}]\`[${title}](${url})\nrequested by ${author}`;

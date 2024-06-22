@@ -1,12 +1,13 @@
-import { DiscordRequest } from '@/src/discord_request/base/DiscordRequest';
 import {
   Channel,
   Guild,
   Message,
   MessagePayload,
   User,
-  VoiceBasedChannel
+  VoiceBasedChannel,
 } from 'discord.js';
+
+import { DiscordRequest } from '@/src/discord_request/base/DiscordRequest';
 
 export class MessageDiscordRequest implements DiscordRequest {
   private readonly message: Message;

@@ -1,8 +1,3 @@
-import Queue from '@/src/audio/Queue';
-import Track from '@/src/audio/Track';
-import { DiscordRequest } from '@/src/discord_request/base/DiscordRequest';
-import IdleDisconnectEmbed from '@/src/embed/IdleDisconnectEmbed';
-import { PlaySongEmbed } from '@/src/embed/PlaySongEmbed';
 import {
   AudioPlayer,
   AudioPlayerStatus,
@@ -10,9 +5,15 @@ import {
   VoiceConnectionStatus,
   createAudioPlayer,
   getVoiceConnection,
-  joinVoiceChannel
+  joinVoiceChannel,
 } from '@discordjs/voice';
 import { VoiceBasedChannel } from 'discord.js';
+
+import Queue from '@/src/audio/Queue';
+import Track from '@/src/audio/Track';
+import { DiscordRequest } from '@/src/discord_request/base/DiscordRequest';
+import IdleDisconnectEmbed from '@/src/embed/IdleDisconnectEmbed';
+import { PlaySongEmbed } from '@/src/embed/PlaySongEmbed';
 
 export default class SoundBlaster {
   private readonly audioPlayer: AudioPlayer;
@@ -23,10 +24,7 @@ export default class SoundBlaster {
   private nodeTimeout: NodeJS.Timeout | null = null;
   private lastMessage: DiscordRequest | null = null;
 
-  public constructor(
-    guildId: string,
-    timeoutInMS: number
-  ) {
+  public constructor(guildId: string, timeoutInMS: number) {
     this.audioPlayer = createAudioPlayer();
     this.queue = new Queue();
     this.guildId = guildId;
@@ -45,7 +43,7 @@ export default class SoundBlaster {
   }
 
   public async joinChannel(
-    voiceChanel: VoiceBasedChannel
+    voiceChanel: VoiceBasedChannel,
   ): Promise<VoiceConnection> {
     let connection = getVoiceConnection(voiceChanel.guild.id);
 
@@ -56,7 +54,7 @@ export default class SoundBlaster {
       connection = joinVoiceChannel({
         channelId: voiceChanel.id,
         guildId: voiceChanel.guild.id,
-        adapterCreator: voiceChanel.guild.voiceAdapterCreator
+        adapterCreator: voiceChanel.guild.voiceAdapterCreator,
       });
 
       connection.on(VoiceConnectionStatus.Disconnected, () => {
@@ -102,7 +100,10 @@ export default class SoundBlaster {
     return true;
   }
 
-  public async removeTracks(fromPosition: number, amount: number): Promise<number> {
+  public async removeTracks(
+    fromPosition: number,
+    amount: number,
+  ): Promise<number> {
     return this.queue.removeItem(fromPosition, amount);
   }
 
@@ -164,7 +165,7 @@ export default class SoundBlaster {
 
     this.nodeTimeout = setTimeout(
       this.timeoutAction.bind(this),
-      this.timeoutInMS
+      this.timeoutInMS,
     );
   }
 

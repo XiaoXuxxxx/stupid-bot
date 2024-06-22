@@ -1,21 +1,3 @@
-import { ConfigContainer } from "@/src/ConfigContainer";
-import SoundBlasterManager from "@/src/audio/SoundBlasterManager";
-import TrackFactory from "@/src/audio/TrackFactory";
-import Clear from "@/src/commands/Clear";
-import ClearAll from "@/src/commands/ClearAll";
-import Commandable from "@/src/commands/Commandable";
-import Connect from "@/src/commands/Connect";
-import Disconnect from "@/src/commands/Disconnect";
-import Help from "@/src/commands/Help";
-import Jump from "@/src/commands/Jump";
-import Ping from "@/src/commands/Ping";
-import Play from "@/src/commands/Play";
-import Prune from "@/src/commands/Prune";
-import Queue from "@/src/commands/Queue";
-import Remove from "@/src/commands/Remove";
-import Skip from "@/src/commands/Skip";
-import { InteractionDiscordRequest } from "@/src/discord_request/InteractionDiscordRequest";
-import { MessageDiscordRequest } from "@/src/discord_request/MessageDiscordRequest";
 import {
   ActivityType,
   Awaitable,
@@ -25,8 +7,27 @@ import {
   Interaction,
   Message,
   Routes,
-} from "discord.js";
-import dotenv from "dotenv";
+} from 'discord.js';
+import dotenv from 'dotenv';
+
+import { ConfigContainer } from '@/src/ConfigContainer';
+import SoundBlasterManager from '@/src/audio/SoundBlasterManager';
+import TrackFactory from '@/src/audio/TrackFactory';
+import Clear from '@/src/commands/Clear';
+import ClearAll from '@/src/commands/ClearAll';
+import Commandable from '@/src/commands/Commandable';
+import Connect from '@/src/commands/Connect';
+import Disconnect from '@/src/commands/Disconnect';
+import Help from '@/src/commands/Help';
+import Jump from '@/src/commands/Jump';
+import Ping from '@/src/commands/Ping';
+import Play from '@/src/commands/Play';
+import Prune from '@/src/commands/Prune';
+import Queue from '@/src/commands/Queue';
+import Remove from '@/src/commands/Remove';
+import Skip from '@/src/commands/Skip';
+import { InteractionDiscordRequest } from '@/src/discord_request/InteractionDiscordRequest';
+import { MessageDiscordRequest } from '@/src/discord_request/MessageDiscordRequest';
 
 dotenv.config();
 export default class StupidBot {
@@ -50,14 +51,14 @@ export default class StupidBot {
     });
 
     const soundBlasterManager = new SoundBlasterManager(
-      this.config.timeoutInMS
+      this.config.timeoutInMS,
     );
     const trackFactory = new TrackFactory(this.config.ytldlpPath);
 
     this.bindEvent(Events.ClientReady, this.onReady.bind(this));
     this.bindEvent(
       Events.InteractionCreate,
-      this.onInteractionCreate.bind(this)
+      this.onInteractionCreate.bind(this),
     );
     this.bindEvent(Events.MessageCreate, this.onMessageCreate.bind(this));
 
@@ -83,7 +84,7 @@ export default class StupidBot {
 
   public bindEvent(
     event: string,
-    listener: (...args: any[]) => Awaitable<void>
+    listener: (...args: any[]) => Awaitable<void>,
   ): void {
     this.client.on(event, listener);
   }
@@ -102,18 +103,18 @@ export default class StupidBot {
     const devGuildId = process.env.DEV_GUILD_ID;
 
     if (devGuildId === undefined) {
-      console.log("registering global command");
+      console.log('registering global command');
     } else {
       console.log(`registering dev command guildId: ${devGuildId}`);
     }
 
     if (clientId === undefined) {
-      console.log("cannot register command");
+      console.log('cannot register command');
       return;
     }
 
     const commands = Array.from(this.commandByName.values()).map((e) =>
-      e.slashCommand.toJSON()
+      e.slashCommand.toJSON(),
     );
 
     const route =
@@ -123,7 +124,7 @@ export default class StupidBot {
 
     await this.client.rest.put(route, { body: commands });
 
-    console.log("done register commands");
+    console.log('done register commands');
   }
 
   public async start(): Promise<void> {
@@ -132,10 +133,10 @@ export default class StupidBot {
   }
 
   private onReady(client: Client): void {
-    console.log("wake up again");
+    console.log('wake up again');
     client.user?.setActivity(`${this.config.prefix}help or /help`, {
       type: ActivityType.Streaming,
-      url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+      url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
     });
   }
 
@@ -167,7 +168,7 @@ export default class StupidBot {
     const args = interaction.options.data.map((e) => e.value);
     await commandable.execute(
       new InteractionDiscordRequest(interaction),
-      args as string[]
+      args as string[],
     );
   }
 }

@@ -1,8 +1,9 @@
+import { SlashCommandBuilder } from 'discord.js';
+
 import SoundBlasterManager from '@/src/audio/SoundBlasterManager';
 import Commandable from '@/src/commands/Commandable';
 import { DiscordRequest } from '@/src/discord_request/base/DiscordRequest';
 import { ListSongEmbed } from '@/src/embed/ListSongEmbed';
-import { SlashCommandBuilder } from 'discord.js';
 
 export default class Queue implements Commandable {
   public name = 'queue';

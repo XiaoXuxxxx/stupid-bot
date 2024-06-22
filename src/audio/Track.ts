@@ -10,7 +10,7 @@ export default class Track {
   constructor(
     rawUrl: string,
     resourceLoadable: ResourceLoadable,
-    request: DiscordRequest
+    request: DiscordRequest,
   ) {
     this.rawUrl = rawUrl;
     this.resourceLoader = resourceLoadable;

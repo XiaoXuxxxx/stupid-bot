@@ -1,6 +1,7 @@
+import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
+
 import Commandable from '@/src/commands/Commandable';
 import { DiscordRequest } from '@/src/discord_request/base/DiscordRequest';
-import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
 
 export default class Help implements Commandable {
   public name = 'help';
@@ -29,9 +30,9 @@ export default class Help implements Commandable {
         return {
           name: command.name,
           aliases: command.aliases,
-          description: command.description
+          description: command.description,
         };
-      }
+      },
     );
 
     const uniqueStringsByCommandAble = stringsByCommandAble.filter(
@@ -42,12 +43,12 @@ export default class Help implements Commandable {
             return t.name === command.name;
           })
         );
-      }
+      },
     );
 
     const astringsByCommandAble = uniqueStringsByCommandAble.map((command) => {
       return `[\`${this.prefix}${command.aliases.join(
-        `\`][\`${this.prefix}`
+        `\`][\`${this.prefix}`,
       )}\`]\n${command.description}`;
     });
 

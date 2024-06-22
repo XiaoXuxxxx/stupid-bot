@@ -17,7 +17,7 @@ TOKEN=your-discord-bot-token
 then create config file name `config.yaml` and the content is
 
 ```yaml
-prefix: ";"
+prefix: ';'
 voiceBehavior:
   timeoutInMS: 300000
 ```

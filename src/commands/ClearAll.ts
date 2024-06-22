@@ -1,7 +1,8 @@
+import { SlashCommandBuilder } from 'discord.js';
+
 import SoundBlasterManager from '@/src/audio/SoundBlasterManager';
 import Commandable from '@/src/commands/Commandable';
 import { DiscordRequest } from '@/src/discord_request/base/DiscordRequest';
-import { SlashCommandBuilder } from 'discord.js';
 
 export default class ClearAll implements Commandable {
   public name = 'clearall';

@@ -12,10 +12,7 @@ export default class SoundBlasterManager {
     let soundBlaster = this.soundBlasterByGuildId.get(guildId);
 
     if (!soundBlaster) {
-      soundBlaster = new SoundBlaster(
-        guildId,
-        this.timeoutInMS
-      );
+      soundBlaster = new SoundBlaster(guildId, this.timeoutInMS);
       this.soundBlasterByGuildId.set(guildId, soundBlaster);
     }
 

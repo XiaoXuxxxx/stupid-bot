@@ -1,10 +1,11 @@
+import { SlashCommandBuilder } from 'discord.js';
+
 import SoundBlasterManager from '@/src/audio/SoundBlasterManager';
 import Track from '@/src/audio/Track';
 import TrackFactory from '@/src/audio/TrackFactory';
 import Commandable from '@/src/commands/Commandable';
 import { DiscordRequest } from '@/src/discord_request/base/DiscordRequest';
 import { AddSongEmbed } from '@/src/embed/AddSongEmbed';
-import { SlashCommandBuilder } from 'discord.js';
 
 export default class Play implements Commandable {
   public name = 'play';
@@ -19,7 +20,7 @@ export default class Play implements Commandable {
       option
         .setName('url_or_search')
         .setDescription('url of video or the name of video')
-        .setRequired(true)
+        .setRequired(true),
     );
 
   private soundBlasterManager: SoundBlasterManager;
@@ -27,7 +28,7 @@ export default class Play implements Commandable {
 
   public constructor(
     soundBlasterManager: SoundBlasterManager,
-    trackFactory: TrackFactory
+    trackFactory: TrackFactory,
   ) {
     this.soundBlasterManager = soundBlasterManager;
     this.trackFactory = trackFactory;

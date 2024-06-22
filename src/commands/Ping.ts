@@ -1,6 +1,7 @@
+import { SlashCommandBuilder } from 'discord.js';
+
 import Commandable from '@/src/commands/Commandable';
 import { DiscordRequest } from '@/src/discord_request/base/DiscordRequest';
-import { SlashCommandBuilder } from 'discord.js';
 
 export default class Ping implements Commandable {
   public name = 'ping';

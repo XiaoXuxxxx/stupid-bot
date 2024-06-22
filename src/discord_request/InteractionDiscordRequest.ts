@@ -1,4 +1,3 @@
-import { DiscordRequest } from '@/src/discord_request/base/DiscordRequest';
 import {
   Channel,
   CommandInteraction,
@@ -6,8 +5,10 @@ import {
   GuildMember,
   MessagePayload,
   User,
-  VoiceBasedChannel
+  VoiceBasedChannel,
 } from 'discord.js';
+
+import { DiscordRequest } from '@/src/discord_request/base/DiscordRequest';
 
 export class InteractionDiscordRequest implements DiscordRequest {
   private readonly interaction: CommandInteraction;

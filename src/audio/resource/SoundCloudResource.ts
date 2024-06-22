@@ -1,8 +1,10 @@
-import ResourceLoadable, {
-  TrackInfo
-} from '@/src/audio/resource/ResourceLoadable';
 import { AudioResource, createAudioResource } from '@discordjs/voice';
 import play, { SoundCloud } from 'play-dl';
+
+import ResourceLoadable, {
+  TrackInfo,
+} from '@/src/audio/resource/ResourceLoadable';
+
 export class SoundCloudResource implements ResourceLoadable {
   private readonly rawUrl: string;
   private soundCloudInfo: SoundCloud;
@@ -21,7 +23,7 @@ export class SoundCloudResource implements ResourceLoadable {
 
     const resource = createAudioResource(stream.stream, {
       inputType: stream.type,
-      inlineVolume: true
+      inlineVolume: true,
     });
 
     return resource;
@@ -36,7 +38,7 @@ export class SoundCloudResource implements ResourceLoadable {
       source: 'soundcloud',
       thumbnailUrl: this.soundCloudInfo.user.thumbnail,
       channelIconUrl: this.soundCloudInfo.user.thumbnail,
-      channelUrl: this.soundCloudInfo.user.url
+      channelUrl: this.soundCloudInfo.user.url,
     };
 
     this.trackInfo = trackInfo;

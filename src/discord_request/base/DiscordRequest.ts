@@ -5,7 +5,7 @@ import {
   MessagePayload,
   MessageReplyOptions,
   User,
-  VoiceBasedChannel
+  VoiceBasedChannel,
 } from 'discord.js';
 
 export interface DiscordRequest {

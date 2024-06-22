@@ -1,27 +1,26 @@
-
 export default class Queue<T> {
   private items: T[] = [];
   private currentIndex = 0;
 
   public getCurrentIndex(): number {
     return this.currentIndex;
-  };
+  }
 
   public getUpcomingItems(): T[] {
     return this.items.slice(this.currentIndex + 1);
-  };
+  }
 
   public getCurrentItem(): T | null {
     return this.items[this.currentIndex] ?? null;
-  };
+  }
 
   public getPreviousItems(): T[] {
     return this.items.slice(0, this.currentIndex);
-  };
+  }
 
   public addItems(...items: T[]): void {
     this.items.push(...items);
-  };
+  }
 
   public nextItem(): T | null {
     if (this.items.length === this.currentIndex + 1) {
@@ -33,7 +32,7 @@ export default class Queue<T> {
     }
 
     return this.items[++this.currentIndex];
-  };
+  }
 
   public previousItem(): T | null {
     if (this.currentIndex === 0) {
@@ -45,7 +44,7 @@ export default class Queue<T> {
     }
 
     return this.items[--this.currentIndex];
-  };
+  }
 
   public jumpToItem(itemPosition: number): T | null {
     const index = this.getCurrentIndex() + itemPosition;
@@ -57,7 +56,7 @@ export default class Queue<T> {
     this.currentIndex = index;
 
     return this.getCurrentItem();
-  };
+  }
 
   public removeItem(fromPosition: number, amount: number): number {
     const fromIndex = this.currentIndex + fromPosition;
@@ -70,7 +69,8 @@ export default class Queue<T> {
       return 0;
     }
 
-    const isCurrentItemWillAffected = this.currentIndex >= fromIndex && this.currentIndex <= toIndex;
+    const isCurrentItemWillAffected =
+      this.currentIndex >= fromIndex && this.currentIndex <= toIndex;
     if (isCurrentItemWillAffected) {
       this.currentIndex = fromIndex;
     }
@@ -87,14 +87,14 @@ export default class Queue<T> {
 
     this.items = this.items.slice(this.currentIndex - tailCount);
     this.currentIndex = tailCount;
-  };
+  }
 
   public clearUpcomingItems(): void {
     this.items = this.items.slice(0, this.currentIndex + 1);
-  };
+  }
 
   public clearAll(): void {
     this.items = [];
     this.currentIndex = 0;
-  };
+  }
 }

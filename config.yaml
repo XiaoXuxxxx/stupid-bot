@@ -1,4 +1,4 @@
-prefix: "!"
+prefix: '!'
 voiceBehavior:
   timeoutInMS: 300000
-ytdlpPath: "yt-dlp"
+ytdlpPath: 'yt-dlp'

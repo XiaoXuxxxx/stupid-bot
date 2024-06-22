@@ -1,6 +1,7 @@
+import { EmbedBuilder } from 'discord.js';
+
 import { TrackInfo } from '@/src/audio/resource/ResourceLoadable';
 import { DiscordRequest } from '@/src/discord_request/base/DiscordRequest';
-import { EmbedBuilder } from 'discord.js';
 
 export class AddSongEmbed extends EmbedBuilder {
   private readonly trackInfo: TrackInfo;
@@ -23,28 +24,28 @@ export class AddSongEmbed extends EmbedBuilder {
     this.setAuthor({
       name: this.trackInfo.channelName ?? 'unknown',
       url: this.trackInfo.channelUrl,
-      iconURL: this.trackInfo.channelIconUrl
+      iconURL: this.trackInfo.channelIconUrl,
     });
     this.setFields([
       {
         name: 'Duration',
         value: this.secondToTime(this.trackInfo.duration),
-        inline: true
+        inline: true,
       },
       {
         name: 'Source',
         value: this.trackInfo.source,
-        inline: true
+        inline: true,
       },
       {
         name: 'Requested by',
         value: this.trackRequest.getAuthor().toString(),
-        inline: true
-      }
+        inline: true,
+      },
     ]);
     this.setFooter({
       text: `Requested date: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}`,
-      iconURL: this.trackRequest.getAuthor().avatarURL() ?? undefined
+      iconURL: this.trackRequest.getAuthor().avatarURL() ?? undefined,
     });
   }
 

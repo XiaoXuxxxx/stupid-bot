@@ -1,7 +1,8 @@
+import { SlashCommandBuilder } from 'discord.js';
+
 import SoundBlasterManager from '@/src/audio/SoundBlasterManager';
 import Commandable from '@/src/commands/Commandable';
 import { DiscordRequest } from '@/src/discord_request/base/DiscordRequest';
-import { SlashCommandBuilder } from 'discord.js';
 
 export default class Jump implements Commandable {
   public name = 'jump';
@@ -16,7 +17,7 @@ export default class Jump implements Commandable {
       option
         .setName('position')
         .setDescription('position to jump')
-        .setRequired(true)
+        .setRequired(true),
     );
 
   private soundBlasterManager: SoundBlasterManager;
@@ -46,7 +47,9 @@ export default class Jump implements Commandable {
 
     const isSuccess = await soundBlaster.jumpToTrack(index);
 
-    const message = isSuccess ? `jump to the ${index} song` : 'index out of bound :('
+    const message = isSuccess
+      ? `jump to the ${index} song`
+      : 'index out of bound :(';
 
     request.reply(message);
     request.react(isSuccess ? '👍' : '👎');
