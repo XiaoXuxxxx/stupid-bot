@@ -1,4 +1,4 @@
-import { AudioResource } from '@discordjs/voice';
+import { AudioResource } from "@discordjs/voice";
 
 export type TrackInfo = {
   title: string;
@@ -8,9 +8,7 @@ export type TrackInfo = {
   channelName?: string;
   channelUrl?: string;
   channelIconUrl?: string;
-  source:
-  | 'youtube'
-  | 'soundcloud'
+  source: "youtube" | "soundcloud" | "generic";
 };
 
 export default interface ResourceLoadable {

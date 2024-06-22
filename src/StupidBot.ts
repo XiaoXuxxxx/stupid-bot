@@ -1,21 +1,21 @@
-import { ConfigContainer } from '@/src/ConfigContainer';
-import SoundBlasterManager from '@/src/audio/SoundBlasterManager';
-import TrackFactory from '@/src/audio/TrackFactory';
-import Clear from '@/src/commands/Clear';
-import ClearAll from '@/src/commands/ClearAll';
-import Commandable from '@/src/commands/Commandable';
-import Connect from '@/src/commands/Connect';
-import Disconnect from '@/src/commands/Disconnect';
-import Help from '@/src/commands/Help';
-import Jump from '@/src/commands/Jump';
-import Ping from '@/src/commands/Ping';
-import Play from '@/src/commands/Play';
-import Prune from '@/src/commands/Prune';
-import Queue from '@/src/commands/Queue';
-import Remove from '@/src/commands/Remove';
-import Skip from '@/src/commands/Skip';
-import { InteractionDiscordRequest } from '@/src/discord_request/InteractionDiscordRequest';
-import { MessageDiscordRequest } from '@/src/discord_request/MessageDiscordRequest';
+import { ConfigContainer } from "@/src/ConfigContainer";
+import SoundBlasterManager from "@/src/audio/SoundBlasterManager";
+import TrackFactory from "@/src/audio/TrackFactory";
+import Clear from "@/src/commands/Clear";
+import ClearAll from "@/src/commands/ClearAll";
+import Commandable from "@/src/commands/Commandable";
+import Connect from "@/src/commands/Connect";
+import Disconnect from "@/src/commands/Disconnect";
+import Help from "@/src/commands/Help";
+import Jump from "@/src/commands/Jump";
+import Ping from "@/src/commands/Ping";
+import Play from "@/src/commands/Play";
+import Prune from "@/src/commands/Prune";
+import Queue from "@/src/commands/Queue";
+import Remove from "@/src/commands/Remove";
+import Skip from "@/src/commands/Skip";
+import { InteractionDiscordRequest } from "@/src/discord_request/InteractionDiscordRequest";
+import { MessageDiscordRequest } from "@/src/discord_request/MessageDiscordRequest";
 import {
   ActivityType,
   Awaitable,
@@ -24,9 +24,9 @@ import {
   GatewayIntentBits,
   Interaction,
   Message,
-  Routes
-} from 'discord.js';
-import dotenv from 'dotenv';
+  Routes,
+} from "discord.js";
+import dotenv from "dotenv";
 
 dotenv.config();
 export default class StupidBot {
@@ -45,14 +45,14 @@ export default class StupidBot {
         GatewayIntentBits.GuildMessages,
         GatewayIntentBits.MessageContent,
         GatewayIntentBits.GuildVoiceStates,
-        GatewayIntentBits.GuildMessageReactions
-      ]
+        GatewayIntentBits.GuildMessageReactions,
+      ],
     });
 
     const soundBlasterManager = new SoundBlasterManager(
       this.config.timeoutInMS
     );
-    const trackFactory = new TrackFactory();
+    const trackFactory = new TrackFactory(this.config.ytldlpPath);
 
     this.bindEvent(Events.ClientReady, this.onReady.bind(this));
     this.bindEvent(
@@ -102,13 +102,13 @@ export default class StupidBot {
     const devGuildId = process.env.DEV_GUILD_ID;
 
     if (devGuildId === undefined) {
-      console.log('registering global command');
+      console.log("registering global command");
     } else {
       console.log(`registering dev command guildId: ${devGuildId}`);
     }
 
     if (clientId === undefined) {
-      console.log('cannot register command');
+      console.log("cannot register command");
       return;
     }
 
@@ -123,7 +123,7 @@ export default class StupidBot {
 
     await this.client.rest.put(route, { body: commands });
 
-    console.log('done register commands');
+    console.log("done register commands");
   }
 
   public async start(): Promise<void> {
@@ -132,10 +132,10 @@ export default class StupidBot {
   }
 
   private onReady(client: Client): void {
-    console.log('wake up again');
+    console.log("wake up again");
     client.user?.setActivity(`${this.config.prefix}help or /help`, {
       type: ActivityType.Streaming,
-      url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
+      url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
     });
   }
 

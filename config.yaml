@@ -1,3 +1,4 @@
 prefix: "!"
 voiceBehavior:
   timeoutInMS: 300000
+ytdlpPath: "yt-dlp"

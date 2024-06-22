@@ -3,9 +3,9 @@ import ResourceLoadable, {
 } from "@/src/audio/resource/ResourceLoadable";
 import { AudioResource, createAudioResource } from "@discordjs/voice";
 import { spawn } from "child_process";
-import play, { YouTubeVideo } from "play-dl";
 import { PassThrough } from "stream";
-export default class YoutubeResource implements ResourceLoadable {
+
+export default class GenericResource implements ResourceLoadable {
   private readonly rawUrl: string;
   private readonly ytdlpPath: string;
   private trackInfo?: TrackInfo;
@@ -14,28 +14,17 @@ export default class YoutubeResource implements ResourceLoadable {
     this.rawUrl = rawUrl;
     this.ytdlpPath = ytdlpPath;
   }
-
   public async loadTrackInfo(): Promise<void> {
-    let video: YouTubeVideo | undefined;
-    try {
-      const { video_details } = await play.video_info(this.rawUrl);
-      video = video_details;
-    } catch (e) {
-      console.error(e);
-    }
-
-    const trackInfo: TrackInfo = {
-      title: video?.title ?? "<UNKNOWN>",
-      duration: video?.durationInSec ?? 0,
-      url: video?.url ?? this.rawUrl,
-      thumbnailUrl: video?.thumbnails[0].url ?? this.rawUrl,
-      channelIconUrl: video?.channel?.iconURL({ size: 128 }),
-      channelName: video?.channel?.name ?? "Unknown",
-      channelUrl: video?.channel?.url,
-      source: "youtube",
+    this.trackInfo = {
+      title: this.rawUrl,
+      duration: 0,
+      url: this.rawUrl,
+      thumbnailUrl: this.rawUrl,
+      channelIconUrl: this.rawUrl,
+      channelName: this.rawUrl,
+      channelUrl: this.rawUrl,
+      source: "generic",
     };
-
-    this.trackInfo = trackInfo;
   }
 
   public async getTrackInfo(): Promise<TrackInfo | undefined> {
