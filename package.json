@@ -12,8 +12,7 @@
     "dotenv": "^16.3.1",
     "js-yaml": "^4.1.0",
     "libsodium-wrappers": "^0.7.13",
-    "play-dl": "^1.9.7",
-    "ytdl-core": "^4.11.5"
+    "play-dl": "^1.9.7"
   },
   "devDependencies": {
     "@types/js-yaml": "^4.0.6",
