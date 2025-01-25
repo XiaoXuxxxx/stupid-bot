@@ -1,4 +1,4 @@
-FROM node:18-alpine AS deps
+FROM node:22-alpine AS deps
 
 RUN apk add --no-cache g++ make py3-pip libc6-compat
 RUN corepack enable
@@ -7,7 +7,7 @@ COPY package.json pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile
 
 
-FROM node:18-alpine AS builder
+FROM node:22-alpine AS builder
 
 WORKDIR /app
 
@@ -19,7 +19,7 @@ RUN corepack enable
 RUN pnpm build
 
 
-FROM node:18-alpine AS runner
+FROM node:22-alpine AS runner
 
 RUN apk update
 RUN apk upgrade
