@@ -43,7 +43,13 @@ export default class GenericResource implements ResourceLoadable {
       inlineVolume: true,
     });
 
-    const process = spawn(this.ytdlpPath, ['-o', '-', '-x', this.rawUrl]);
+    const process = spawn(this.ytdlpPath, [
+      '--quiet',
+      '-o',
+      '-',
+      '-x',
+      this.rawUrl,
+    ]);
 
     process.stdout.pipe(passThrough);
 
