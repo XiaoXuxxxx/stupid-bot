@@ -1,8 +1,14 @@
-FROM node:22-alpine3.18 AS base
+FROM node:22-alpine3.20 AS base
 
 FROM base AS deps
 
-RUN apk add --no-cache libc6-compat make build-base python3
+RUN apk add --no-cache libc6-compat make build-base python3 wget
+
+# yt-dlp
+RUN wget https://github.com/yt-dlp/yt-dlp/releases/download/2025.01.15/yt-dlp_linux -O /bin/yt-dlp
+RUN chmod a+rx /bin/yt-dlp
+
+# nodejs deps
 RUN corepack enable
 
 WORKDIR /app
@@ -27,11 +33,11 @@ FROM base AS runner
 RUN apk update
 RUN apk upgrade
 RUN apk add --no-cache ffmpeg
-RUN apk add --no-cache yt-dlp-core
 
 WORKDIR /app
 
 COPY --from=deps ./app/node_modules ./node_modules
+COPY --from=deps /bin/yt-dlp /bin/yt-dlp
 COPY --from=builder ./app/dist ./dist
 COPY --from=builder ./app/package.json ./package.json
 
