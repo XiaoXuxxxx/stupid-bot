@@ -13,6 +13,7 @@ import dotenv from 'dotenv';
 import { ConfigContainer } from '@/src/ConfigContainer';
 import SoundBlasterManager from '@/src/audio/SoundBlasterManager';
 import TrackFactory from '@/src/audio/TrackFactory';
+import About from '@/src/commands/About';
 import Clear from '@/src/commands/Clear';
 import ClearAll from '@/src/commands/ClearAll';
 import Commandable from '@/src/commands/Commandable';
@@ -64,6 +65,7 @@ export default class StupidBot {
 
     this.bindCommands([
       new Ping(),
+      new About(config.ytldlpPath),
       new Play(soundBlasterManager, trackFactory),
       new Connect(soundBlasterManager),
       new Disconnect(soundBlasterManager),
