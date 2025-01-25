@@ -37,7 +37,9 @@ export class MessageDiscordRequest implements DiscordRequest {
   }
 
   public async send(content: string | MessagePayload): Promise<void> {
-    await this.message.channel.send(content);
+    if (this.message.channel.isSendable()) {
+      await this.message.channel.send(content);
+    }
   }
 
   public async react(emoji: string): Promise<void> {

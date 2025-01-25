@@ -40,7 +40,9 @@ export class InteractionDiscordRequest implements DiscordRequest {
   }
 
   public async send(content: string | MessagePayload): Promise<void> {
-    await this.interaction.channel?.send(content);
+    if (this.interaction.channel?.isSendable()) {
+      await this.interaction.channel?.send(content);
+    }
   }
 
   public async react(): Promise<void> {
