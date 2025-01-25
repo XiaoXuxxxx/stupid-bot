@@ -1,13 +1,16 @@
-FROM node:22-alpine AS deps
+FROM node:22-alpine3.20 AS base
 
-RUN apk add --no-cache g++ make py3-pip libc6-compat
+FROM base AS deps
+
+RUN apk add --no-cache libc6-compat make build-base python3
 RUN corepack enable
+
 WORKDIR /app
 COPY package.json pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile
 
 
-FROM node:22-alpine AS builder
+FROM base AS builder
 
 WORKDIR /app
 
@@ -19,7 +22,7 @@ RUN corepack enable
 RUN pnpm build
 
 
-FROM node:22-alpine AS runner
+FROM base AS runner
 
 RUN apk update
 RUN apk upgrade
