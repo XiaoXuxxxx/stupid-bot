@@ -22,10 +22,24 @@ voiceBehavior:
   timeoutInMS: 300000
 ```
 
+then create docker compose file name `docker-compose-yaml` and the content is
+
+```yaml
+services:
+  stupid-bot:
+    image: ghcr.io/xiaoxuxxxx/stupid-bot
+    container_name: stupid-bot
+    volumes:
+      - ./config.yaml:/app/config.yaml:ro
+    env_file:
+      - .env
+    restart: unless-stopped
+```
+
 and then run
 
 ```sh
-docker run -d --env-file ./.env --name stupid-bot ghcr.io/xiaoxuxxxx/stupid-bot
+docker compose up -d
 ```
 
 and your bot should work now
