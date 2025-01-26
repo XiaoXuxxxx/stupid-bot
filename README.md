@@ -43,3 +43,19 @@ docker compose up -d
 ```
 
 and your bot should work now
+
+## How to update [yt-dlp](https://github.com/yt-dlp/yt-dlp)
+
+If your bot isn't working, it might be because your yt-dlp is [outdated](https://github.com/yt-dlp/yt-dlp/releases). To update it, simply run:
+
+```
+docker exec -it <CONTAINER_NAME_OR_ID> yt-dlp -U
+```
+
+For example, if you're using my compose file, the command should be:
+
+```
+docker exec -it stupid-bot yt-dlp -U
+```
+
+For more information about updating yt-dlp, please check https://github.com/yt-dlp/yt-dlp?tab=readme-ov-file#update
