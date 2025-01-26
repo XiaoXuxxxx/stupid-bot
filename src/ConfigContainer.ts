@@ -41,6 +41,7 @@ export class ConfigContainer {
         this.ytldlpPath = ytdlpPath;
       }
     } catch (e) {
+      console.log(e);
       console.log('[CONFIG] no config file, use default config');
     }
   }

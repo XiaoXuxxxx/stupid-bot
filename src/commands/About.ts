@@ -13,7 +13,6 @@ export default class About implements Commandable {
 
   private ytdlpVersion: string = 'NOT_FETCH_YET';
   private readonly initUnixDate: number;
-  private ytdlpStatusMessage: string = '';
   private ytdlpStatusExecuteLastTime: Date = new Date();
 
   public slashCommand = new SlashCommandBuilder()
@@ -30,26 +29,24 @@ export default class About implements Commandable {
     this.ytdlpVersion = await this.getYtdlpVersion(ytdlpPath);
 
     this.ytdlpStatusExecuteLastTime = new Date();
-    this.ytdlpStatusMessage = await this.getYtdlpInfo(this.ytdlpPath);
+    this.ytdlpVersion = await this.getYtdlpVersion(this.ytdlpPath);
   }
 
   public async execute(request: DiscordRequest, args: string[]): Promise<void> {
     if (
       new Date() >
-      new Date(this.ytdlpStatusExecuteLastTime.getTime() + 10 * 60 * 1000)
+      new Date(this.ytdlpStatusExecuteLastTime.getTime() + 30 * 1000) // cache 30 sec
     ) {
       console.log('renew');
       this.ytdlpStatusExecuteLastTime = new Date();
-      this.ytdlpStatusMessage = await this.getYtdlpInfo(this.ytdlpPath);
+      this.ytdlpVersion = await this.getYtdlpVersion(this.ytdlpPath);
     }
 
     const messages = [
       `- Instance online since: <t:${this.initUnixDate}:F> (uptime: <t:${this.initUnixDate}:R>)`,
-      `- using yt-dlp version: \`${this.ytdlpVersion}\``,
-      `- \`yt-dlp -U\` status (last check <t:${Math.floor(this.ytdlpStatusExecuteLastTime.getTime() / 1000)}:R>): `,
-      `\`\`\`${this.ytdlpStatusMessage}\`\`\``,
+      `- using yt-dlp version: \`${this.ytdlpVersion}\` (last check <t:${Math.floor(this.ytdlpStatusExecuteLastTime.getTime() / 1000)}:R>)`,
     ];
-    !!request.reply(messages.join('\n'));
+    request.reply(messages.join('\n'));
   }
 
   private async getYtdlpVersion(ytdlpPath: string): Promise<string> {
@@ -70,32 +67,6 @@ export default class About implements Commandable {
           resolve(version.trim());
         } else {
           reject(new Error(`Process exited with code ${code}`));
-        }
-      });
-    });
-  }
-
-  private async getYtdlpInfo(ytdlpPath: string): Promise<string> {
-    return new Promise((resolve, reject) => {
-      const proc = spawn(ytdlpPath, ['-U']);
-
-      let info = '';
-      proc.stdout.on('data', (data) => {
-        info += data.toString();
-        resolve(info.trim());
-      });
-
-      proc.on('error', (err) => {
-        console.log(err);
-        resolve('-');
-      });
-
-      proc.on('close', (code) => {
-        if (code === 0) {
-          resolve(info.trim());
-        } else {
-          console.log(`Process exited with code ${code}`);
-          resolve('-');
         }
       });
     });
