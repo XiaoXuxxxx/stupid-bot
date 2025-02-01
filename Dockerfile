@@ -4,16 +4,16 @@ FROM base AS deps
 
 RUN apk add --no-cache libc6-compat make build-base python3 wget
 
-# yt-dlp
-RUN wget https://github.com/yt-dlp/yt-dlp/releases/download/2025.01.15/yt-dlp_linux -O /bin/yt-dlp
-RUN chmod a+rx /bin/yt-dlp
-
 # nodejs deps
 RUN corepack enable
 
 WORKDIR /app
 COPY package.json pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile
+
+# yt-dlp
+RUN wget https://github.com/yt-dlp/yt-dlp/releases/download/2025.01.15/yt-dlp -O /bin/yt-dlp
+RUN chmod a+rx /bin/yt-dlp
 
 
 FROM base AS builder
@@ -32,7 +32,7 @@ FROM base AS runner
 
 RUN apk update
 RUN apk upgrade
-RUN apk add --no-cache ffmpeg
+RUN apk add --no-cache ffmpeg python3
 
 WORKDIR /app
 
