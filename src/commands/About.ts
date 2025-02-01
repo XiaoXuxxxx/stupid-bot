@@ -12,6 +12,7 @@ export default class About implements Commandable {
   private readonly ytdlpPath: string;
 
   private ytdlpVersion: string = 'NOT_FETCH_YET';
+  private latestYtdlpVersion: string = 'NOT_FETCH_YET';
   private readonly initUnixDate: number;
   private ytdlpStatusExecuteLastTime: Date = new Date();
 
@@ -20,16 +21,16 @@ export default class About implements Commandable {
     .setDescription('about the bot');
 
   public constructor(ytdlpPath: string) {
-    this.initialize(ytdlpPath);
     this.ytdlpPath = ytdlpPath;
     this.initUnixDate = Math.floor(new Date().getTime() / 1000);
+
+    this.initialize();
   }
 
-  private async initialize(ytdlpPath: string): Promise<void> {
-    this.ytdlpVersion = await this.getYtdlpVersion(ytdlpPath);
-
+  private async initialize(): Promise<void> {
     this.ytdlpStatusExecuteLastTime = new Date();
     this.ytdlpVersion = await this.getYtdlpVersion(this.ytdlpPath);
+    this.latestYtdlpVersion = await this.getLatestReleaseYtdlpVersion();
   }
 
   public async execute(request: DiscordRequest, args: string[]): Promise<void> {
@@ -43,8 +44,9 @@ export default class About implements Commandable {
     }
 
     const messages = [
+      `**About this bot** (last check <t:${Math.floor(this.ytdlpStatusExecuteLastTime.getTime() / 1000)}:R>)`,
       `- Instance online since: <t:${this.initUnixDate}:F> (uptime: <t:${this.initUnixDate}:R>)`,
-      `- using yt-dlp version: \`${this.ytdlpVersion}\` (last check <t:${Math.floor(this.ytdlpStatusExecuteLastTime.getTime() / 1000)}:R>)`,
+      `- Using yt-dlp version: \`${this.ytdlpVersion}\` (Latest version is \`${this.latestYtdlpVersion}\`)`,
     ];
     request.reply(messages.join('\n'));
   }
@@ -70,5 +72,32 @@ export default class About implements Commandable {
         }
       });
     });
+  }
+
+  private async getLatestReleaseYtdlpVersion(): Promise<string> {
+    const endpoint =
+      'https://raw.githubusercontent.com/yt-dlp/yt-dlp/release/yt_dlp/version.py';
+
+    try {
+      const res = await fetch(endpoint);
+
+      if (!res.ok) {
+        throw new Error(`Failed to fetch: ${res.status} ${res.statusText}`);
+      }
+
+      const text = await res.text();
+
+      const match = text.match(/__version__ = ["'](.+?)["']/);
+
+      if (!match) {
+        console.error('Version not found in response');
+        return 'CANNOT_FETCH_VERSION';
+      }
+
+      return match[1];
+    } catch (error) {
+      console.error('Error fetching yt-dlp version:', error);
+      return 'CANNOT_FETCH_VERSION';
+    }
   }
 }
