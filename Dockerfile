@@ -5,7 +5,7 @@ FROM base AS other-deps
 RUN apk add --no-cache wget
 
 # yt-dlp
-RUN wget https://github.com/yt-dlp/yt-dlp/releases/download/2025.01.15/yt-dlp -O /bin/yt-dlp
+RUN wget https://github.com/yt-dlp/yt-dlp/releases/download/2025.01.26/yt-dlp -O /bin/yt-dlp
 RUN chmod a+rx /bin/yt-dlp
 
 
