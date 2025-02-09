@@ -1,4 +1,4 @@
-FROM node:22-alpine3.21 AS base
+FROM node:22.13.1-alpine3.21 AS base
 
 FROM base AS other-deps
 
