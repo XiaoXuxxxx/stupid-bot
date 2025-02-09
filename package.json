@@ -13,6 +13,7 @@
     "dotenv": "^16.4.7",
     "js-yaml": "^4.1.0",
     "libsodium-wrappers": "^0.7.15",
+    "opusscript": "^0.1.1",
     "play-dl": "^1.9.7"
   },
   "devDependencies": {
