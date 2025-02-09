@@ -11,7 +11,7 @@ RUN chmod a+rx /bin/yt-dlp
 
 FROM base AS node-deps
 
-RUN apk add --no-cache libc6-compat make build-base python3 wget
+RUN apk add --no-cache libc6-compat make build-base python3
 
 RUN npm i -g corepack@0.31.0
 
