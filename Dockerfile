@@ -13,7 +13,7 @@ FROM base AS node-deps
 
 RUN apk add --no-cache libc6-compat make build-base python3 wget
 
-RUN corepack enable
+RUN npm i -g corepack@0.31.0
 
 WORKDIR /app
 COPY package.json pnpm-lock.yaml ./
@@ -28,7 +28,7 @@ COPY --from=node-deps ./app/node_modules ./node_modules
 COPY ./src/ ./src/
 COPY tsconfig.json package.json pnpm-lock.yaml ./
 
-RUN corepack enable
+RUN npm i -g corepack@0.31.0
 RUN pnpm build
 
 
