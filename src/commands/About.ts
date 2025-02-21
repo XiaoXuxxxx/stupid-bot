@@ -41,6 +41,7 @@ export default class About implements Commandable {
       console.log('renew');
       this.ytdlpStatusExecuteLastTime = new Date();
       this.ytdlpVersion = await this.getYtdlpVersion(this.ytdlpPath);
+      this.latestYtdlpVersion = await this.getLatestReleaseYtdlpVersion();
     }
 
     const messages = [
