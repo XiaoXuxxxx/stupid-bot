@@ -8,7 +8,6 @@ import {
   Message,
   Routes,
 } from 'discord.js';
-import dotenv from 'dotenv';
 
 import { ConfigContainer } from '@/src/ConfigContainer';
 import SoundBlasterManager from '@/src/audio/SoundBlasterManager';
@@ -30,7 +29,6 @@ import Skip from '@/src/commands/Skip';
 import { InteractionDiscordRequest } from '@/src/discord_request/InteractionDiscordRequest';
 import { MessageDiscordRequest } from '@/src/discord_request/MessageDiscordRequest';
 
-dotenv.config();
 export default class StupidBot {
   private readonly token: string;
   private readonly client: Client;

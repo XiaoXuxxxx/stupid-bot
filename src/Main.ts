@@ -1,9 +1,5 @@
-import dotenv from 'dotenv';
-
 import { ConfigContainer } from '@/src/ConfigContainer';
 import StupidBot from '@/src/StupidBot';
-
-dotenv.config();
 
 const token = process.env.TOKEN;
 if (!token) {
