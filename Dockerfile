@@ -4,7 +4,7 @@ WORKDIR /app
 
 
 RUN apk add --no-cache ffmpeg python3
-RUN wget https://github.com/yt-dlp/yt-dlp/releases/download/2025.01.26/yt-dlp -O /bin/yt-dlp
+RUN wget https://github.com/yt-dlp/yt-dlp/releases/download/2025.03.31/yt-dlp -O /bin/yt-dlp
 RUN chmod a+rx /bin/yt-dlp
 
 COPY bun.lockb package.json ./
