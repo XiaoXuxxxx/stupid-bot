@@ -1,10 +1,10 @@
-FROM oven/bun:1.2.5-alpine AS base
+FROM oven/bun:1.2.23-alpine AS base
 
 WORKDIR /app
 
 
 RUN apk add --no-cache ffmpeg python3
-RUN wget https://github.com/yt-dlp/yt-dlp/releases/download/2025.03.31/yt-dlp -O /bin/yt-dlp
+RUN wget https://github.com/yt-dlp/yt-dlp/releases/download/2025.09.26/yt-dlp -O /bin/yt-dlp
 RUN chmod a+rx /bin/yt-dlp
 
 COPY bun.lockb package.json ./
