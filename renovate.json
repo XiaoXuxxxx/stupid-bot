@@ -1,22 +1,18 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:base"],
-
-  "enabledManagers": ["regex"],
-
-  "regexManagers": [
+  "extends": ["config:recommended"],
+  "enabledManagers": ["custom.regex"],
+  "customManagers": [
     {
-      "fileMatch": ["(^|/)Dockerfile$"],
-      "matchStrings": [
-        "ARG YTDLP_VERSION=(?<currentValue>.*)\\n"
-      ],
+      "customType": "regex",
+      "managerFilePatterns": ["/(^|/)Dockerfile$/"],
+      "matchStrings": ["ARG YTDLP_VERSION=(?<currentValue>.*)\\n"],
       "datasourceTemplate": "github-releases",
       "depNameTemplate": "yt-dlp/yt-dlp",
       "extractVersionTemplate": "^v?(?<version>.*)$",
       "versioningTemplate": "loose"
     }
   ],
-
   "packageRules": [
     {
       "matchDepNames": ["yt-dlp/yt-dlp"],
@@ -29,7 +25,6 @@
       "prPriority": 10
     }
   ],
-
   "branchPrefix": "",
   "automerge": true,
   "automergeType": "branch",
