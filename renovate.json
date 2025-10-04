@@ -13,8 +13,7 @@
       "datasourceTemplate": "github-releases",
       "depNameTemplate": "yt-dlp/yt-dlp",
       "extractVersionTemplate": "^v?(?<version>.*)$",
-      "versioningTemplate": "loose",
-      "replaceTemplate": "ARG YTDLP_VERSION={{newValue}}"
+      "versioningTemplate": "loose"
     }
   ],
 
