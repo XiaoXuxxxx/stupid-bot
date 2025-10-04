@@ -1,0 +1,16 @@
+{
+  "extends": ["config:base"],
+  "regexManagers": [
+    {
+      "fileMatch": ["Dockerfile"],
+      "matchStrings": ["ARG YTDLP_VERSION=(?<currentValue>\\d{4}\\.\\d{2}\\.\\d{2})"],
+      "depNameTemplate": "yt-dlp/yt-dlp",
+      "datasourceTemplate": "github-releases",
+      "versioningTemplate": "loose",
+      "extractVersionTemplate": "{{version}}",
+      "replaceStringTemplate": "ARG YTDLP_VERSION={{version}}"
+    }
+  ],
+  "automerge": true,
+  "automergeType": "branch"
+}
