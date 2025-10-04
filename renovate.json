@@ -1,17 +1,43 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:base"],
+
+  "enabledManagers": ["regex"],
+
   "regexManagers": [
     {
-      "fileMatch": ["Dockerfile"],
-      "matchStrings": ["ARG YTDLP_VERSION=(?<currentValue>\\d{4}\\.\\d{2}\\.\\d{2})"],
-      "depNameTemplate": "yt-dlp/yt-dlp",
+      "fileMatch": ["(^|/)Dockerfile$"],
+      "matchStrings": [
+        "ARG YTDLP_VERSION=(?<currentValue>.*)\\n"
+      ],
       "datasourceTemplate": "github-releases",
+      "depNameTemplate": "yt-dlp/yt-dlp",
+      "extractVersionTemplate": "^v?(?<version>.*)$",
       "versioningTemplate": "loose",
-      "extractVersionTemplate": "{{version}}",
-      "replaceStringTemplate": "ARG YTDLP_VERSION={{version}}"
+      "replaceTemplate": "ARG YTDLP_VERSION={{newValue}}"
     }
   ],
+
+  "packageRules": [
+    {
+      "matchDepNames": ["yt-dlp/yt-dlp"],
+      "commitMessageTopic": "yt-dlp version",
+      "automerge": true,
+      "automergeType": "branch",
+      "platformAutomerge": true,
+      "branchPrefix": "",
+      "prCreation": "not-pending",
+      "prPriority": 10
+    }
+  ],
+
+  "branchPrefix": "",
   "automerge": true,
-  "automergeType": "branch"
+  "automergeType": "branch",
+  "platformAutomerge": true,
+  "onboarding": false,
+  "requireConfig": "ignored",
+  "gitAuthor": "Renovate Bot <bot@renovateapp.com>",
+  "commitMessagePrefix": "chore:",
+  "commitBody": "Auto-updated yt-dlp to latest release via Renovate."
 }
