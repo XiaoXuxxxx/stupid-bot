@@ -77,7 +77,7 @@ export default class About implements Commandable {
 
   private async getLatestReleaseYtdlpVersion(): Promise<string> {
     const endpoint =
-      'https://raw.githubusercontent.com/yt-dlp/yt-dlp/release/yt_dlp/version.py';
+      'https://raw.githubusercontent.com/yt-dlp/yt-dlp/master/yt_dlp/version.py';
 
     try {
       const res = await fetch(endpoint);
