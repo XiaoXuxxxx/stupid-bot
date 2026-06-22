@@ -2,12 +2,11 @@
   "$schema": "https://json.schemastore.org/tsconfig",
   "compilerOptions": {
     "target": "ES2022",
-    "module": "CommonJS",
+    "module": "node20",
     "rootDir": "./",
-    "moduleResolution": "node",
-    "baseUrl": "./",
+    "moduleResolution": "nodenext",
     "paths": {
-      "@/*": ["*"]
+      "@/*": ["./*"]
     },
     "resolveJsonModule": true,
     "sourceMap": true,
