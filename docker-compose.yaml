@@ -1,6 +1,6 @@
 services:
   stupid-bot:
-    image: ghcr.io/xiaoxuxxxx/stupid-bot
+    image: stupid-bot
     container_name: stupid-bot
     volumes:
       - ./config.yaml:/app/config.yaml:ro

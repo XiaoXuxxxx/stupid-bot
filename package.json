@@ -6,11 +6,11 @@
     "format": "prettier . --write"
   },
   "dependencies": {
-    "@discordjs/voice": "^0.19.0",
-    "@snazzah/davey": "^0.1.7",
-    "discord.js": "^14.22.1",
+    "@discordjs/voice": "^0.19.2",
+    "@snazzah/davey": "^0.1.12",
+    "discord.js": "^14.26.4",
     "js-yaml": "^4.1.0",
-    "libsodium-wrappers": "^0.7.15",
+    "libsodium-wrappers": "^0.8.4",
     "opusscript": "^0.1.1",
     "play-dl": "^1.9.7"
   },
