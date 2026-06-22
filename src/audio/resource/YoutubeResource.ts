@@ -58,6 +58,8 @@ export default class YoutubeResource implements ResourceLoadable {
     // Spawn yt-dlp to fetch best audio
     const ytdlp = spawn(this.ytdlpPath, [
       '--quiet',
+      '--js-runtimes',
+      'bun',
       '-o',
       '-',
       '-f',

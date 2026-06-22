@@ -165,7 +165,11 @@ export default class StupidBot {
     }
 
     await interaction.deferReply();
-    const args = interaction.options.data.map((e) => e.value);
+
+    const args =
+      'options' in interaction
+        ? interaction.options.data.map((e) => e.value)
+        : [];
     await commandable.execute(
       new InteractionDiscordRequest(interaction),
       args as string[],
