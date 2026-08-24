@@ -4,9 +4,9 @@ import {
   createAudioResource,
 } from '@discordjs/voice';
 import { spawn } from 'child_process';
-import play, { YouTubeVideo } from 'play-dl';
 import { PassThrough } from 'stream';
 
+import Ytdlp, { YtdlpVideoInfo } from '@/src/audio/Ytdlp';
 import ResourceLoadable, {
   TrackInfo,
 } from '@/src/audio/resource/ResourceLoadable';
@@ -14,30 +14,34 @@ import ResourceLoadable, {
 export default class YoutubeResource implements ResourceLoadable {
   private readonly rawUrl: string;
   private readonly ytdlpPath: string;
+  private readonly ytdlp: Ytdlp;
   private trackInfo?: TrackInfo;
 
   public constructor(rawUrl: string, ytdlpPath: string) {
     this.rawUrl = rawUrl;
     this.ytdlpPath = ytdlpPath;
+    this.ytdlp = new Ytdlp(ytdlpPath);
   }
 
   public async loadTrackInfo(): Promise<void> {
-    let video: YouTubeVideo | undefined;
+    let video: YtdlpVideoInfo | undefined;
     try {
-      const { video_details } = await play.video_info(this.rawUrl);
-      video = video_details;
+      video = await this.ytdlp.videoInfo(this.rawUrl);
     } catch (e) {
       console.error(e);
     }
 
     const trackInfo: TrackInfo = {
       title: video?.title ?? '<UNKNOWN>',
-      duration: video?.durationInSec ?? 0,
-      url: video?.url ?? this.rawUrl,
-      thumbnailUrl: video?.thumbnails[0].url ?? this.rawUrl,
-      channelIconUrl: video?.channel?.iconURL({ size: 128 }),
-      channelName: video?.channel?.name ?? 'Unknown',
-      channelUrl: video?.channel?.url,
+      duration: this.getDuration(video?.duration),
+      url: video?.webpage_url ?? video?.original_url ?? this.rawUrl,
+      thumbnailUrl:
+        video?.thumbnail ??
+        video?.thumbnails?.find((t) => t.url)?.url ??
+        this.rawUrl,
+      channelIconUrl: video?.channel_thumbnail ?? video?.uploader_avatar,
+      channelName: video?.channel ?? video?.uploader ?? 'Unknown',
+      channelUrl: video?.channel_url ?? video?.uploader_url,
       source: 'youtube',
     };
 
@@ -134,5 +138,22 @@ export default class YoutubeResource implements ResourceLoadable {
     });
 
     return resource;
+  }
+
+  private getDuration(duration: number | string | null | undefined): number {
+    if (typeof duration === 'number') {
+      return Number.isFinite(duration) ? duration : 0;
+    }
+
+    if (typeof duration !== 'string') {
+      return 0;
+    }
+
+    const parts = duration.split(':').map(Number);
+    if (parts.some((part) => !Number.isFinite(part))) {
+      return 0;
+    }
+
+    return parts.reduce((total, part) => total * 60 + part, 0);
   }
 }

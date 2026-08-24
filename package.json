@@ -11,8 +11,7 @@
     "discord.js": "^14.26.4",
     "js-yaml": "^4.1.0",
     "libsodium-wrappers": "^0.8.4",
-    "opusscript": "^0.1.1",
-    "play-dl": "^1.9.7"
+    "opusscript": "^0.1.1"
   },
   "devDependencies": {
     "@trivago/prettier-plugin-sort-imports": "^4.3.0",
