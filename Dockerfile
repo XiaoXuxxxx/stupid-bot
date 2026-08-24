@@ -1,3 +1,15 @@
+FROM oven/bun:1.2.23-alpine AS typecheck
+
+WORKDIR /app
+
+COPY bun.lock package.json ./
+RUN bun install --frozen-lockfile
+
+COPY ./src ./src
+COPY tsconfig.json ./
+
+RUN bunx tsc --noEmit
+
 FROM oven/bun:1.2.23-alpine AS base
 
 ARG YTDLP_VERSION=2026.08.19
@@ -11,7 +23,7 @@ RUN chmod a+rx /bin/yt-dlp
 COPY bun.lock package.json ./
 RUN bun install --frozen-lockfile --production
 
-COPY ./src ./src
+COPY --from=typecheck /app/src ./src
 COPY tsconfig.json ./
 
 CMD ["bun", "src/Main.ts"]
