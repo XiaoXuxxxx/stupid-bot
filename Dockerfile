@@ -1,4 +1,4 @@
-FROM oven/bun:1.2.23-alpine AS typecheck
+FROM oven/bun:1.4.0-alpine AS typecheck
 
 WORKDIR /app
 
@@ -10,7 +10,7 @@ COPY tsconfig.json ./
 
 RUN bunx tsc --noEmit
 
-FROM oven/bun:1.2.23-alpine AS base
+FROM oven/bun:1.4.0-alpine AS base
 
 ARG YTDLP_VERSION=2026.08.19
 
