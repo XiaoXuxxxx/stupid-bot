@@ -12,7 +12,7 @@ RUN bunx tsc --noEmit
 
 FROM oven/bun:1.4.0-alpine AS base
 
-ARG YTDLP_VERSION=2026.08.19
+ARG YTDLP_VERSION=2026.10.26
 
 WORKDIR /app
 
